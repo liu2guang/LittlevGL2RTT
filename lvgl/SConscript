@@ -1,0 +1,31 @@
+from building import * 
+
+# get current dir path
+cwd = GetCurrentDir()
+
+# init src and inc vars
+src = []
+inc = []
+
+# add LittlevGL common include
+inc = inc + [cwd]
+inc = inc + [cwd + "/lv_core"]
+inc = inc + [cwd + "/lv_draw"]
+inc = inc + [cwd + "/lv_hal"]
+inc = inc + [cwd + "/lv_misc"]
+inc = inc + [cwd + "/lv_misc/lv_fonts"]
+inc = inc + [cwd + "/lv_objx"]
+inc = inc + [cwd + "/lv_themes"]
+
+# add LittlevGL basic code
+src = src + Glob('./lv_core/*.c')
+src = src + Glob('./lv_draw/*.c')
+src = src + Glob('./lv_hal/*.c')
+src = src + Glob('./lv_misc/*.c')
+src = src + Glob('./lv_misc/lv_fonts/*.c')
+src = src + Glob('./lv_objx/*.c')
+src = src + Glob('./lv_themes/*.c')
+
+group = DefineGroup('LittlevGL', src, depend = ['PKG_USING_LITTLEVGL'], CPPPATH = inc)
+
+Return('group')
