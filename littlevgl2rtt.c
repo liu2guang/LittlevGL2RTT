@@ -252,16 +252,14 @@ static void lvgl_tick_run(void *p)
 rt_err_t littlevgl2rtt_init(const char *name) 
 {
     RT_ASSERT(name != RT_NULL); 
-
-    RT_ASSERT(info.bits_per_pixel ==  8); 
-    RT_ASSERT(info.bits_per_pixel == 16); 
-    RT_ASSERT(info.bits_per_pixel == 24); 
-    RT_ASSERT(info.bits_per_pixel == 32); 
     
     /* LCD device */
     device = rt_device_find(name); 
     rt_device_open(device, RT_DEVICE_OFLAG_RDWR); 
     rt_device_control(device, RTGRAPHIC_CTRL_GET_INFO, &info); 
+    
+    RT_ASSERT(info.bits_per_pixel ==  8 || info.bits_per_pixel == 16 || 
+              info.bits_per_pixel == 24 || info.bits_per_pixel == 32); 
 
     if(info.bits_per_pixel != LV_COLOR_DEPTH)
     {
