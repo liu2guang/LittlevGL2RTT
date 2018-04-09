@@ -17,22 +17,37 @@ static void lcd_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t 
     int32_t act_x2 = x2 > info.width  - 1 ? info.width  - 1 : x2;
     int32_t act_y2 = y2 > info.height - 1 ? info.height - 1 : y2;
 
-    uint32_t x;
-    uint32_t y;
-
+    uint32_t x; 
+    uint32_t y; 
     long int location = 0;
 
-    if(info.bits_per_pixel == 16) 
+    /* 8 bit per pixel */ 
+    switch(info.bits_per_pixel)
     {
-        uint16_t *fbp16 = (uint16_t*)info.framebuffer;
+    case 8:
+        uint8_t *framebuffer = (uint8_t*)info.framebuffer; 
+    break; 
+    case 16:
+        uint16_t *framebuffer = (uint16_t*)info.framebuffer; 
+    break; 
+    case 24:
+        uint32_t *framebuffer = (uint32_t*)info.framebuffer; 
+    break; 
+    case 32:
+        uint32_t *framebuffer = (uint32_t*)info.framebuffer; 
+    break; 
+    }
+
+    for(y = act_y1; y <= act_y2; y++) 
+    {
         for(x = act_x1; x <= act_x2; x++) 
         {
-            for(y = act_y1; y <= act_y2; y++) 
-            {
-                location = (x) + (y) * info.width;
-                fbp16[location] = color.full;
-            }
+            location = (x) + (y) * info.width;
+            framebuffer[location] = color_p->full;
+            color_p++;
         }
+
+        color_p += x2 - act_x2;
     }
 
     struct rt_device_rect_info rect_info; 
@@ -58,24 +73,37 @@ static void lcd_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_col
     int32_t act_x2 = x2 > info.width  - 1 ? info.width  - 1 : x2;
     int32_t act_y2 = y2 > info.height - 1 ? info.height - 1 : y2;
 
+    uint32_t x; 
+    uint32_t y; 
     long int location = 0;
 
-    if(info.bits_per_pixel == 16) 
+    /* 8 bit per pixel */ 
+    switch(info.bits_per_pixel)
     {
-        uint16_t *fbp16 = (uint16_t*)info.framebuffer;
-        uint32_t x;
-        uint32_t y;
-        for(y = act_y1; y <= act_y2; y++) 
-        {
-            for(x = act_x1; x <= act_x2; x++) 
-            {
-                location = (x) + (y) * info.width;
-                fbp16[location] = color_p->full;
-                color_p++;
-            }
+    case 8:
+        uint8_t *framebuffer = (uint8_t*)info.framebuffer; 
+    break; 
+    case 16:
+        uint16_t *framebuffer = (uint16_t*)info.framebuffer; 
+    break; 
+    case 24:
+        uint32_t *framebuffer = (uint32_t*)info.framebuffer; 
+    break; 
+    case 32:
+        uint32_t *framebuffer = (uint32_t*)info.framebuffer; 
+    break; 
+    }
 
-            color_p += x2 - act_x2;
+    for(y = act_y1; y <= act_y2; y++) 
+    {
+        for(x = act_x1; x <= act_x2; x++) 
+        {
+            location = (x) + (y) * info.width;
+            framebuffer[location] = color_p->full;
+            color_p++;
         }
+
+        color_p += x2 - act_x2;
     }
 
     struct rt_device_rect_info rect_info; 
@@ -101,26 +129,37 @@ static void lcd_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_c
     int32_t act_x2 = x2 > info.width  - 1 ? info.width  - 1 : x2;
     int32_t act_y2 = y2 > info.height - 1 ? info.height - 1 : y2;
 
+    uint32_t x; 
+    uint32_t y; 
     long int location = 0;
 
-    /*16 bit per pixel*/
-    if(info.bits_per_pixel == 16) 
+    /* 8 bit per pixel */ 
+    switch(info.bits_per_pixel)
     {
-        uint16_t *fbp16 = (uint16_t*)info.framebuffer;
-        uint32_t x;
-        uint32_t y;
-        
-        for(y = act_y1; y <= act_y2; y++) 
-        {
-            for(x = act_x1; x <= act_x2; x++) 
-            {
-                location = (x) + (y) * info.width;
-                fbp16[location] = color_p->full;
-                color_p++;
-            }
+    case 8:
+        uint8_t *framebuffer = (uint8_t*)info.framebuffer; 
+    break; 
+    case 16:
+        uint16_t *framebuffer = (uint16_t*)info.framebuffer; 
+    break; 
+    case 24:
+        uint32_t *framebuffer = (uint32_t*)info.framebuffer; 
+    break; 
+    case 32:
+        uint32_t *framebuffer = (uint32_t*)info.framebuffer; 
+    break; 
+    }
 
-            color_p += x2 - act_x2;
+    for(y = act_y1; y <= act_y2; y++) 
+    {
+        for(x = act_x1; x <= act_x2; x++) 
+        {
+            location = (x) + (y) * info.width;
+            framebuffer[location] = color_p->full;
+            color_p++;
         }
+
+        color_p += x2 - act_x2;
     }
     
     struct rt_device_rect_info rect_info; 
@@ -146,13 +185,25 @@ static void lvgl_tick_run(void *p)
 rt_err_t littlevgl2rtt_init(const char *name) 
 {
     RT_ASSERT(name != RT_NULL); 
-    
-    lv_init(); 
+
+    RT_ASSERT(info.bits_per_pixel ==  8); 
+    RT_ASSERT(info.bits_per_pixel == 16); 
+    RT_ASSERT(info.bits_per_pixel == 24); 
+    RT_ASSERT(info.bits_per_pixel == 32); 
     
     /* LCD device */
     device = rt_device_find(name); 
     rt_device_open(device, RT_DEVICE_OFLAG_RDWR); 
     rt_device_control(device, RTGRAPHIC_CTRL_GET_INFO, &info); 
+
+    if(info.bits_per_pixel != LV_COLOR_DEPTH)
+    {
+        rt_kprintf("Error: framebuffer color depth mismatch! (Should be %d to match with LV_COLOR_DEPTH)", 
+            info.bits_per_pixel); 
+        return R_ERROR; 
+    }
+
+    lv_init(); 
     
     /* littlevGZL */
     lv_disp_drv_t disp_drv; 
@@ -172,7 +223,10 @@ rt_err_t littlevgl2rtt_init(const char *name)
     {
         return RT_ERROR; 
     }
-    rt_thread_startup(thread);
+    rt_thread_startup(thread); 
+
+    rt_kprintf("Welcome to the littlevgl2rtt lib."); 
+    rt_kprintf("You can find latest version from https://github.com/liu2guang/LittlevGL2RTT."); 
     
     return RT_EOK; 
 }
