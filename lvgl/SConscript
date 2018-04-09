@@ -1,4 +1,5 @@
 from building import * 
+import rtconfig
 
 # get current dir path
 cwd = GetCurrentDir()
@@ -26,6 +27,13 @@ src = src + Glob('./lv_misc/lv_fonts/*.c')
 src = src + Glob('./lv_objx/*.c')
 src = src + Glob('./lv_themes/*.c')
 
-group = DefineGroup('LittlevGL2RTT', src, depend = ['PKG_USING_LITTLEVGL2RTT'], CPPPATH = inc)
+LOCAL_CCFLAGS = ''
+
+if rtconfig.CROSS_TOOL == 'gcc':
+    LOCAL_CCFLAGS += ' -std=c99'
+elif rtconfig.CROSS_TOOL == 'keil':
+    LOCAL_CCFLAGS += ' --c99 --gnu -g -W'
+
+group = DefineGroup('LittlevGL2RTT', src, depend = ['PKG_USING_LITTLEVGL2RTT'], CPPPATH = inc, LOCAL_CCFLAGS = LOCAL_CCFLAGS)
 
 Return('group')
