@@ -1,5 +1,6 @@
 #include "littlevgl2rtt.h" 
 
+static rt_device_t device; 
 static struct rt_device_graphic_info info; 
 
 static void lcd_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t color)
@@ -33,6 +34,14 @@ static void lcd_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t 
             }
         }
     }
+
+    struct rt_device_rect_info rect_info; 
+
+    rect_info.x = x1;
+    rect_info.y = y1;
+    rect_info.width = x2 - x1;
+    rect_info.height = y2 - y1;
+    rt_device_control(device, RTGRAPHIC_CTRL_RECT_UPDATE, &rect_info); 
 }
 
 static void lcd_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t * color_p)
@@ -68,6 +77,14 @@ static void lcd_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_col
             color_p += x2 - act_x2;
         }
     }
+
+    struct rt_device_rect_info rect_info; 
+
+    rect_info.x = x1;
+    rect_info.y = y1;
+    rect_info.width = x2 - x1;
+    rect_info.height = y2 - y1;
+    rt_device_control(device, RTGRAPHIC_CTRL_RECT_UPDATE, &rect_info); 
 }
 
 static void lcd_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t * color_p)
@@ -106,6 +123,14 @@ static void lcd_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_c
         }
     }
     
+    struct rt_device_rect_info rect_info; 
+
+    rect_info.x = x1;
+    rect_info.y = y1;
+    rect_info.width = x2 - x1;
+    rect_info.height = y2 - y1;
+    rt_device_control(device, RTGRAPHIC_CTRL_RECT_UPDATE, &rect_info); 
+    
     lv_flush_ready();
 }
 
@@ -125,7 +150,7 @@ rt_err_t littlevgl2rtt_init(const char *name)
     lv_init(); 
     
     /* LCD device */
-    rt_device_t device = rt_device_find(name); 
+    device = rt_device_find(name); 
     rt_device_open(device, RT_DEVICE_OFLAG_RDWR); 
     rt_device_control(device, RTGRAPHIC_CTRL_GET_INFO, &info); 
     
