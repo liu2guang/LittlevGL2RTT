@@ -26,6 +26,6 @@ src = src + Glob('./lv_misc/lv_fonts/*.c')
 src = src + Glob('./lv_objx/*.c')
 src = src + Glob('./lv_themes/*.c')
 
-group = DefineGroup('LittlevGL', src, depend = ['PKG_USING_LITTLEVGL'], CPPPATH = inc)
+group = DefineGroup('LittlevGL2RTT', src, depend = ['PKG_USING_LITTLEVGL2RTT'], CPPPATH = inc)
 
 Return('group')

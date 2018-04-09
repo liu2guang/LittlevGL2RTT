@@ -15,10 +15,10 @@ inc = inc + [cwd]
 src = src + ['./littlevgl2rtt.c']
 
 # add group to IDE project
-objs  = DefineGroup('LittlevGL', src, depend = ['PKG_USING_LITTLEVGL'], CPPPATH = inc)
+objs  = DefineGroup('LittlevGL2RTT', src, depend = ['PKG_USING_LITTLEVGL2RTT'], CPPPATH = inc)
 list = os.listdir(cwd)
 
-if GetDepend('PKG_USING_LITTLEVGL'):
+if GetDepend('PKG_USING_LITTLEVGL2RTT'):
     for d in list:
         path = os.path.join(cwd, d)
         if os.path.isfile(os.path.join(path, 'SConscript')):

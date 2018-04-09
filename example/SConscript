@@ -13,6 +13,6 @@ inc = inc + [cwd]
 # add LittlevGL2RTT basic code
 src = Glob('*.c')
 
-group = DefineGroup('LittlevGL_Demo', src, depend = ['LITTLEVGL_USING_DEMO'], CPPPATH = inc)
+group = DefineGroup('LittlevGL2RTT_Demo', src, depend = ['LITTLEVGL2RTT_USING_DEMO'], CPPPATH = inc)
 
 Return('group')
