@@ -7,6 +7,31 @@ LittlevGL2RTT is a LittlevGL intermediate framework layer above the RTThread3.0 
 
 LittlevGL2RTT 是在RTThread3.0版本以上做的LittlevGL中间框架层, 目的是无缝嵌入RTT的LCD框架, 无需开发者去移植. 
 
+Currently, littlevgl2rtt library is not added to the official PKGS package of RTT, which needs to be added to env manually. 
+1. Download the PKG package file for [https://github.com/liu2guang/mypackages/tree/master/LittlevGL2RTT](https://github.com/liu2guang/mypackages/tree/master/LittlevGL2RTT).
+~~~
+	The download file is as follows: 
+	- LittlevGL2RTT(folder)
+	| - Kconfig(file)
+	| - package.json(file)
+~~~
+2. Store the PKG package file to ** "env_root/packages/packages/system/" **. 
+3. ** "env_root/packages/packages/system/Kconfig" ** add a line of code: ** source "$PKGS_DIR/packages/system/LittlevGL2RTT/Kconfig" ** 
+4. Start the env input menuconfig command in the BSP that needs to add LittlevGL2RTT library, enter the system packages and select LittlevGL2RTT library.
+5. Modify the corresponding configuration parameters of LittlevGL2RTT in menuconfig.
+
+1. 目前littlevgl2rtt库没有添加到rtt官方pkgs包中, 需要通过手动添加到env中.
+~~~
+	下载文件如下: 
+	- LittlevGL2RTT(folder)
+	| - Kconfig(file)
+	| - package.json(file)
+~~~
+2. 将pkg包文件存放到 ** "env_root/packages/packages/system/" ** 下. 
+3. 在** "env_root/packages/packages/system/Kconfig" ** 文件中添加一行代码:  ** source "$PKGS_DIR/packages/system/LittlevGL2RTT/Kconfig" ** 
+4. 在需要添加LittlevGL2RTT库的bsp中启动env输入menuconfig命令, 进入system packages选择LittlevGL2RTT库. 
+5. menuconfig中修改LittlevGL2RTT对应配置参数.
+
 ![LittlevGL2RTT效果图](https://i.imgur.com/NBtHZma.jpg) 
 
 # 1. notice/注意
