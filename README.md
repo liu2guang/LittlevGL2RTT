@@ -5,6 +5,8 @@
 
 LittlevGL2RTT is a LittlevGL intermediate framework layer above the RTThread3.0 version, with the aim of seamlessly embedding RTT's LCD framework without the need for a developer to migrate.
 
+![LittlevGL2RTT效果图](https://i.imgur.com/NBtHZma.jpg)
+
 ---
 # 1. notice
 
