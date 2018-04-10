@@ -23,8 +23,8 @@ Currently, littlevgl2rtt library is not added to the official PKGS package of RT
 	| - Kconfig(file)
 	| - package.json(file)
 ~~~
-2. Store the PKG package file to *env_root/packages/packages/system/* . 
-3. *env_root/packages/packages/system/Kconfig* add a line of code: *source "$PKGS_DIR/packages/system/LittlevGL2RTT/Kconfig"* 
+2. Store the PKG package file to `env_root/packages/packages/system/` . 
+3. `env_root/packages/packages/system/Kconfig` add a line of code: `source "$PKGS_DIR/packages/system/LittlevGL2RTT/Kconfig"` 
 4. Start the env input menuconfig command in the BSP that needs to add LittlevGL2RTT library, enter the system packages and select LittlevGL2RTT library.
 5. Modify the corresponding configuration parameters of LittlevGL2RTT in menuconfig.
 
@@ -62,8 +62,8 @@ For externally binary files (e.g. SD card):
 	| - Kconfig(file)
 	| - package.json(file)
 ~~~
-2. 将pkg包文件存放到 *env_root/packages/packages/system/* 下. 
-3. 在 *env_root/packages/packages/system/Kconfig* 文件中添加一行代码: *source "$PKGS_DIR/packages/system/LittlevGL2RTT/Kconfig"*
+2. 将pkg包文件存放到 `env_root/packages/packages/system/` 下. 
+3. 在 `env_root/packages/packages/system/Kconfig` 文件中添加一行代码: `source "$PKGS_DIR/packages/system/LittlevGL2RTT/Kconfig"`
 4. 在需要添加LittlevGL2RTT库的bsp中启动env输入menuconfig命令, 进入system packages选择LittlevGL2RTT库. 
 5. menuconfig中修改LittlevGL2RTT对应配置参数.
 
