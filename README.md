@@ -1,4 +1,4 @@
-# LittlevGL2RTT Lib #
+# LittlevGL2RTT #
 
 [![build](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/liu2guang/LittlevGL2RTT)
 [![release](https://img.shields.io/badge/Release-TestInProcess-orange.svg)](https://github.com/liu2guang/LittlevGL2RTT/releases)
@@ -7,11 +7,13 @@ LittlevGL2RTT is a LittlevGL intermediate framework layer above the RTThread3.0 
 
 LittlevGL2RTT 是在RTThread3.0版本以上做的LittlevGL中间框架层, 目的是无缝嵌入RTT的LCD框架, 无需开发者去移植. 
 
+# Rendering / 效果图
+
 ![LittlevGL2RTT效果图](https://i.imgur.com/NBtHZma.jpg) 
 
 --- 
 
-#Using the tutorial/使用教程
+# Using the tutorial / 使用教程
 
 Currently, littlevgl2rtt library is not added to the official PKGS package of RTT, which needs to be added to env manually. 
 1. Download the PKG package file for [https://github.com/liu2guang/mypackages/tree/master/LittlevGL2RTT](https://github.com/liu2guang/mypackages/tree/master/LittlevGL2RTT).
@@ -21,8 +23,8 @@ Currently, littlevgl2rtt library is not added to the official PKGS package of RT
 	| - Kconfig(file)
 	| - package.json(file)
 ~~~
-2. Store the PKG package file to ** "env_root/packages/packages/system/" **. 
-3. ** "env_root/packages/packages/system/Kconfig" ** add a line of code: ** source "$PKGS_DIR/packages/system/LittlevGL2RTT/Kconfig" ** 
+2. Store the PKG package file to *env_root/packages/packages/system/* . 
+3. *env_root/packages/packages/system/Kconfig* add a line of code: *source "$PKGS_DIR/packages/system/LittlevGL2RTT/Kconfig"* 
 4. Start the env input menuconfig command in the BSP that needs to add LittlevGL2RTT library, enter the system packages and select LittlevGL2RTT library.
 5. Modify the corresponding configuration parameters of LittlevGL2RTT in menuconfig.
 
@@ -33,24 +35,24 @@ Currently, littlevgl2rtt library is not added to the official PKGS package of RT
 	| - Kconfig(file)
 	| - package.json(file)
 ~~~
-2. 将pkg包文件存放到 ** "env_root/packages/packages/system/" ** 下. 
-3. 在** "env_root/packages/packages/system/Kconfig" ** 文件中添加一行代码:  ** source "$PKGS_DIR/packages/system/LittlevGL2RTT/Kconfig" ** 
+2. 将pkg包文件存放到 *env_root/packages/packages/system/* 下. 
+3. 在 *env_root/packages/packages/system/Kconfig* 文件中添加一行代码: *source "$PKGS_DIR/packages/system/LittlevGL2RTT/Kconfig"*
 4. 在需要添加LittlevGL2RTT库的bsp中启动env输入menuconfig命令, 进入system packages选择LittlevGL2RTT库. 
 5. menuconfig中修改LittlevGL2RTT对应配置参数.
 
-# 1. notice/注意
+# 1. Notice / 注意
 
 Because LittlevGL uses an anonymous structure, you need to add the compilation parameter in MDK: **-gnu -g -W**.
 
 因为LittlevGL使用了匿名结构体, 所以需要在MDK中需要添加编译参数: **--gnu -g -W**. 
 
-# 2. Using the notes/使用笔记 
+# 2. Using the notes / 使用笔记 
 
 ## 2.1 Image format conversion/图像格式转换 
 
 Image format conversion web/图像格式转换网站: [https://littlevgl.com/image-to-c-array](https://littlevgl.com/image-to-c-array "Image format conversion web/图像格式转换网站")
 
-## 2.2 Image Loading/图像加载
+## 2.2 Image Loading / 图像加载
 
 For C arrays: 
 1. Copy the result C file into your LittlevGL project.
