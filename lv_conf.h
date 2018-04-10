@@ -6,18 +6,17 @@
 #ifndef LV_CONF_H
 #define LV_CONF_H
 
+#include "rtconfig.h"
+
 /*----------------
  * Dynamic memory
  *----------------*/
-
-/* Memory size which will be used by the library
- * to store the graphical objects and other data */
-#define LV_MEM_CUSTOM 1                     /*1: use custom malloc/free, 0: use the built-in lv_mem_alloc/lv_mem_free*/
-
 #if     LV_MEM_CUSTOM == 0
-#define LV_MEM_SIZE         (32U * 1024U)   /*Size memory used by `lv_mem_alloc` in bytes (>= 2kB)*/
-#define LV_MEM_ATTR                         /*Complier prefix for big array declaration*/
-#define LV_MEM_AUTO_DEFRAG  1               /*Automatically defrag on free*/
+#define LV_MEM_SIZE         (LV_MEM_KB_SIZE * 1024U)    /* Size memory used by `lv_mem_alloc` in bytes (>= 2kB) */
+#define LV_MEM_ATTR                                     /* Complier prefix for big array declaration */
+#ifndef LV_MEM_AUTO_DEFRAG
+#define LV_MEM_AUTO_DEFRAG  1                           /* Automatically defrag on free */
+#endif
 #else 
 #define LV_MEM_CUSTOM_INCLUDE <rtthread.h>  /*Header for the dynamic memory function*/
 #define LV_MEM_CUSTOM_ALLOC   rt_malloc     /*Wrapper to malloc*/
@@ -29,9 +28,15 @@
  *===================*/
 
 /* Horizontal and vertical resolution of the library.*/
+#ifndef LV_HOR_RES
 #define LV_HOR_RES          (480)
+#endif
+#ifndef LV_VER_RES
 #define LV_VER_RES          (272)
+#endif
+#ifndef LV_DPI
 #define LV_DPI              (50)
+#endif
 
 /* Size of VDB (Virtual Display Buffer: the internal graphics buffer).
  * Required for buffered drawing, opacity and anti-aliasing
@@ -57,15 +62,18 @@
  *=================*/
 
 /*Input device settings*/
-#define LV_INDEV_READ_PERIOD            50                     /*Input device read period in milliseconds*/
+#define LV_INDEV_READ_PERIOD            10                     /*Input device read period in milliseconds*/
 #define LV_INDEV_POINT_MARKER           0                      /*Mark the pressed points  (required: USE_LV_REAL_DRAW = 1)*/
 #define LV_INDEV_DRAG_LIMIT             10                     /*Drag threshold in pixels */
 #define LV_INDEV_DRAG_THROW             20                     /*Drag throw slow-down in [%]. Greater value means faster slow-down */
 #define LV_INDEV_LONG_PRESS_TIME        400                    /*Long press time in milliseconds*/
 #define LV_INDEV_LONG_PRESS_REP_TIME    100                    /*Repeated trigger period in long press [ms] */
 
-/*Color settings*/
+/*Color settings*/ 
+#ifndef LV_COLOR_DEPTH
 #define LV_COLOR_DEPTH     16                     /*Color depth: 1/8/16/24*/
+#endif
+
 #define LV_COLOR_TRANSP    LV_COLOR_LIME          /*Images pixels with this color will not be drawn (with chroma keying)*/
 
 /*Text settings*/
@@ -88,12 +96,12 @@
  *  THEME USAGE
  *================*/
 #define USE_LV_THEME_TEMPL      0       /*Just for test*/
-#define USE_LV_THEME_DEFAULT    0       /*Built mainly from the built-in styles. Consumes very few RAM*/
-#define USE_LV_THEME_ALIEN      0       /*Dark futuristic theme*/
-#define USE_LV_THEME_NIGHT      0       /*Dark elegant theme*/
-#define USE_LV_THEME_MONO       0       /*Mono color theme for monochrome displays*/
+#define USE_LV_THEME_DEFAULT    1       /*Built mainly from the built-in styles. Consumes very few RAM*/
+#define USE_LV_THEME_ALIEN      1       /*Dark futuristic theme*/
+#define USE_LV_THEME_NIGHT      1       /*Dark elegant theme*/
+#define USE_LV_THEME_MONO       1       /*Mono color theme for monochrome displays*/
 #define USE_LV_THEME_MATERIAL   1       /*Flat theme with bold colors and light shadows*/
-#define USE_LV_THEME_ZEN        0       /*Peaceful, mainly light theme */
+#define USE_LV_THEME_ZEN        1       /*Peaceful, mainly light theme */
 
 /*==================
  *    FONT USAGE

@@ -290,8 +290,8 @@ rt_err_t littlevgl2rtt_init(const char *name)
     }
     rt_thread_startup(thread); 
 
-    rt_kprintf("Welcome to the littlevgl2rtt lib.\n"); 
-    rt_kprintf("You can find latest version from https://github.com/liu2guang/LittlevGL2RTT.\n"); 
+    rt_kprintf("[littlevgl2rtt] Welcome to the littlevgl2rtt lib.\n"); 
+    rt_kprintf("[littlevgl2rtt] You can find latest version from https://github.com/liu2guang/LittlevGL2RTT.\n"); 
     
     return RT_EOK; 
 }
