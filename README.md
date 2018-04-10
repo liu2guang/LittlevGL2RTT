@@ -5,11 +5,15 @@
 
 LittlevGL2RTT is a LittlevGL intermediate framework layer above the RTThread3.0 version, with the aim of seamlessly embedding RTT's LCD framework without the need for a developer to migrate.If you think the library is comfortable, please donate a small star. The star is the power of renewal!!!
 
+Thank for author of LittlevGL's open source GUI library. Check out the original library, please move to [https://github.com/littlevgl/lvgl](https://github.com/littlevgl/lvgl "lvgl"). 
+
 LittlevGL2RTT 是在RTThread3.0版本以上做的LittlevGL中间框架层, 目的是无缝嵌入RTT的LCD框架, 无需开发者去移植. 如果您觉得该库看得顺眼舒服，请捐赠颗小星星. 小星星就是更新的动力!!! 
+
+感谢LittlevGL作者的开源GUI库. 原库请移步到 [https://github.com/littlevgl/lvgl](https://github.com/littlevgl/lvgl "lvgl"). 
 
 # Rendering / 效果图
 
-![LittlevGL2RTT效果图](https://i.imgur.com/NBtHZma.jpg) 
+![Rendering](https://i.imgur.com/hdq3RhV.gif)
 
 --- 
 
