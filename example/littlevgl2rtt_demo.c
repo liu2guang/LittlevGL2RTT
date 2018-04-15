@@ -1,4 +1,5 @@
 #include "littlevgl2rtt.h" 
+#include "lvgl.h" 
 
 #include <rtthread.h> 
 #include <rtdevice.h>  
