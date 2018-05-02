@@ -157,6 +157,21 @@
 
 #define RT_USING_SDRAM
 
+/* Select lcd driver */
+
+/* Notice: Fire Board para: 800*480 4 4 8 2 40 10 58 45 */
+#define RT_USING_LCD
+#define LCD_WIDTH 800
+#define LCD_HEIGHT 480
+#define LCD_HFP 4
+#define LCD_VFP 4
+#define LCD_HBP 8
+#define LCD_VBP 2
+#define LCD_HSW 40
+#define LCD_VSW 10
+#define LCD_BL_PIN 58
+#define LCD_RST_PIN 0
+
 /* LittlevGL2RTT */
 #define PKG_USING_LITTLEVGL2RTT
 #define PKG_USING_LITTLEVGL2RTT_LATEST_VERSION
@@ -166,8 +181,8 @@
 #define LV_MEM_CUSTOM 1
 #define LV_COLOR_DEPTH_16
 #define LV_COLOR_DEPTH 16
-#define LV_HOR_RES 800
-#define LV_VER_RES 480
+#define LV_HOR_RES LCD_WIDTH
+#define LV_VER_RES LCD_HEIGHT
 #define LV_DPI 50
 #define LITTLEVGL2RTT_USING_DEMO
 
