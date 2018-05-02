@@ -20,8 +20,8 @@ before_script:
   
   # 创建packages目录, 拷贝LittlevGL2RTT源码到bsp pkg下, 并拷贝对应SConscript脚本
   - mkdir /home/travis/build/liu2guang/RT-Thread/bsp/imxrt1052-evk/packages
-  - cp /home/travis/build/liu2guang/dwin/tools/rtconfig.h /home/travis/build/liu2guang/RT-Thread/bsp/imxrt1052-evk/rtconfig.h
-  - cp /home/travis/build/liu2guang/dwin/tools/pkg_scons /home/travis/build/liu2guang/RT-Thread/bsp/imxrt1052-evk/packages/SConscript
+  - cp /home/travis/build/liu2guang/LittlevGL2RTT/tools/rtconfig.h /home/travis/build/liu2guang/RT-Thread/bsp/imxrt1052-evk/rtconfig.h
+  - cp /home/travis/build/liu2guang/LittlevGL2RTT/tools/pkg_scons /home/travis/build/liu2guang/RT-Thread/bsp/imxrt1052-evk/packages/SConscript
   - cp -r /home/travis/build/liu2guang/LittlevGL2RTT /home/travis/build/liu2guang/RT-Thread/bsp/imxrt1052-evk/packages/LittlevGL2RTT
   
   # 导出RT-Thread运行bsp根目录和编译器
