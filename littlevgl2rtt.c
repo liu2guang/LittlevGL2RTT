@@ -1,9 +1,7 @@
 #include "littlevgl2rtt.h" 
-#include "lvgl.h" 
 
 static rt_device_t device; 
 static struct rt_device_graphic_info info; 
-static struct rt_messagequeue *input_mq; 
 
 /* Todo: add gpu */
 static void lcd_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t color)
@@ -242,27 +240,6 @@ static void lcd_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_c
     lv_flush_ready();
 }
 
-static bool input_read(lv_indev_data_t *data) 
-{
-    lv_indev_data_t input_date = {0}; 
-    
-    if(rt_mq_recv(input_mq, &input_date, sizeof(lv_indev_data_t), 1) == RT_EOK)
-    {
-        rt_memcpy(data, &input_date, sizeof(lv_indev_data_t)); 
-        data->state   = LV_INDEV_STATE_PR;
-        
-        //rt_kprintf("input recv x: %.4d, y: %.4d\n", data->point.x, data->point.y); 
-    }
-    else
-    {
-        data->state   = LV_INDEV_STATE_REL;
-        data->point.x = 0; 
-        data->point.y = 0; 
-    }
-    
-    return false; /* No buffering so no more data read */
-}
-
 static void lvgl_tick_run(void *p)
 {
     while(1)
@@ -272,21 +249,11 @@ static void lvgl_tick_run(void *p)
     }
 } 
 
-rt_err_t littlevgl2rtt_post_input_data(rt_int16_t x, rt_int16_t y) 
-{
-    lv_indev_data_t input_data; 
-    
-    input_data.point.x = x; 
-    input_data.point.y = y; 
-    
-    return rt_mq_send(input_mq, (rt_uint32_t)&input_data, sizeof(lv_indev_data_t));
-}
-
 rt_err_t littlevgl2rtt_init(const char *name) 
 {
     RT_ASSERT(name != RT_NULL); 
     
-    /* LCD Device Init */
+    /* LCD device */
     device = rt_device_find(name); 
     rt_device_open(device, RT_DEVICE_OFLAG_RDWR); 
     rt_device_control(device, RTGRAPHIC_CTRL_GET_INFO, &info); 
@@ -301,10 +268,9 @@ rt_err_t littlevgl2rtt_init(const char *name)
         return RT_ERROR; 
     }
 
-    /* littlevgl Init */ 
     lv_init(); 
     
-    /* littlevGL Display device interface */
+    /* littlevGZL */
     lv_disp_drv_t disp_drv; 
     lv_disp_drv_init(&disp_drv); 
     
@@ -314,30 +280,18 @@ rt_err_t littlevgl2rtt_init(const char *name)
 
     lv_disp_drv_register(&disp_drv); 
     
-    /* littlevGL Input device interface */ 
-    input_mq = rt_mq_create("lv_input", sizeof(lv_indev_data_t), 256, RT_IPC_FLAG_FIFO);
-    
-    lv_indev_drv_t indev_drv; 
-    lv_indev_drv_init(&indev_drv); 
-    
-    indev_drv.type = LV_INDEV_TYPE_POINTER;
-    indev_drv.read = input_read;
-    
-    lv_indev_drv_register(&indev_drv); 
-    
-    /* littlevGL Tick thread */ 
     rt_thread_t thread = RT_NULL; 
     
-    thread = rt_thread_create("lv_tick", lvgl_tick_run, RT_NULL, 512, 6, 10); 
+    /* littlevGL tick thread */ 
+    thread = rt_thread_create("lv_tick", lvgl_tick_run, RT_NULL, 512, 12, 10); 
     if(thread == RT_NULL)
     {
         return RT_ERROR; 
     }
     rt_thread_startup(thread); 
 
-    /* Info Print */
-    rt_kprintf("[littlevgl2rtt] Welcome to the littlevgl2rtt.\n"); 
-    rt_kprintf("[littlevgl2rtt] You can find latest ver from https://github.com/liu2guang/LittlevGL2RTT.\n"); 
+    rt_kprintf("[littlevgl2rtt] Welcome to the littlevgl2rtt lib.\n"); 
+    rt_kprintf("[littlevgl2rtt] You can find latest version from https://github.com/liu2guang/LittlevGL2RTT.\n"); 
     
     return RT_EOK; 
 }

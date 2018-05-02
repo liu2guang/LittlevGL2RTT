@@ -8,11 +8,15 @@ cwd = GetCurrentDir()
 src = []
 inc = []
 
-# add LittlevGL2RTT common include
-inc = inc + [cwd]
-
-# add LittlevGL2RTT basic code
-src = Glob('*.c')
+if GetDepend('LITTLEVGL2RTT_USING_THEME_DEMO'):
+	inc = inc + [cwd + "/lv_test_theme"]
+	src = Glob('lv_test_theme/*.c')
+	
+elif GetDepend('LITTLEVGL2RTT_USING_DEMO'):
+	# add LittlevGL2RTT common include
+	inc = inc + [cwd]
+	# add LittlevGL2RTT basic code
+	src = Glob('*.c')
 
 LOCAL_CCFLAGS = ''
 
@@ -20,7 +24,11 @@ if rtconfig.CROSS_TOOL == 'gcc':
     LOCAL_CCFLAGS += ' -std=c99'
 elif rtconfig.CROSS_TOOL == 'keil':
     LOCAL_CCFLAGS += ' --c99 --gnu -g -W'
-
-group = DefineGroup('LittlevGL2RTT_Demo', src, depend = ['LITTLEVGL2RTT_USING_DEMO'], CPPPATH = inc, LOCAL_CCFLAGS = LOCAL_CCFLAGS)
-
-Return('group')
+	
+if GetDepend('LITTLEVGL2RTT_USING_DEMO'):
+	group = DefineGroup('LittlevGL2RTT_Demo', src, depend = ['LITTLEVGL2RTT_USING_DEMO'], CPPPATH = inc, LOCAL_CCFLAGS = LOCAL_CCFLAGS)
+	Return('group')
+	
+elif GetDepend('LITTLEVGL2RTT_USING_THEME_DEMO'):	
+	group = DefineGroup('LittlevGL2RTT_THEME_Demo', src, depend = ['LITTLEVGL2RTT_USING_THEME_DEMO'], CPPPATH = inc, LOCAL_CCFLAGS = LOCAL_CCFLAGS)
+	Return('group')
