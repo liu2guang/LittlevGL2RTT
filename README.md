@@ -9,25 +9,38 @@ LittlevGL2RTT 是在RTThread3.0版本以上做的LittlevGL中间框架层, 目�
 
 ## 1. 效果图
 
-![Rendering](https://i.imgur.com/hdq3RhV.gif)
+![效果图](https://i.imgur.com/hdq3RhV.gif)
 
-## 2. 使用教程
+## 2. 安装LittlevGL2RTT
 
-目前littlevgl2rtt库没有添加到rtt官方pkgs包中, 需要通过手动添加到env中.
+目前littlevgl2rtt库已经添加到rtt官方pkgs包中, 可以直接在menuconfig在线包中直接使能. 
 
-1. 下载PKG包文件: [https://github.com/liu2guang/mypackages/tree/master/LittlevGL2RTT](https://github.com/liu2guang/mypackages/tree/master/LittlevGL2RTT).
-~~~
-	下载文件如下: 
-	- LittlevGL2RTT(文件夹)
-	| - Kconfig(文件)
-	| - package.json(文件)
-~~~
-2. 将pkg包文件存放到 `env_root/packages/packages/system/` 下. 
-3. 在 `env_root/packages/packages/system/Kconfig` 文件中添加一行代码: `source "$PKGS_DIR/packages/system/LittlevGL2RTT/Kconfig"`
-4. 在需要添加LittlevGL2RTT库的bsp中启动env输入menuconfig命令, 进入system packages选择LittlevGL2RTT库. 
-5. menuconfig中修改LittlevGL2RTT对应配置参数.
-6. 编译下载运行. 
+1. 在env中运行menuconfig. 
+2. 进入RT-Thread online packages -> system packages目录. 
+3. 开启LittlevGL2RTT, 选择version为lateset最新版本, 配置分辨率为你的显示屏分辨率, 然后开启demo并保存退出menuconfig.
+4. 执行pkgs --update更新LittlevGL2RTT包到你的bsp下面. 
+5. 执行scons/scons --target=xxx, 进行编译生成工程, 下载运行.
+ 
+![安装流程](https://i.imgur.com/fojc8Ie.gif)
 
-## 3. 注意事项
+## 3. 卸载LittlevGL2RTT
+
+1. 在env中运行menuconfig. 
+2. 进入RT-Thread online packages -> system packages目录. 
+3. 关闭LittlevGL2RTT.
+4. 执行pkgs --update, 并输入`Y`表示同意删除pkg包文件. 
+5. 执行scons/scons --target=xxx, 进行编译生成工程, 下载运行.
+
+![卸载流程](https://i.imgur.com/yAeXejV.gif)
+
+## 4. 注意事项
 
 因为LittlevGL使用了匿名结构体, 所以需要在MDK中需要添加编译参数: **--gnu -g -W**. 
+
+## 5. 开发进度
+
+1. 开发环境主要是RT1050 fire的板子(lcd为800*480, 输入设备为GT911), 和qemu环境(800*480, 输入设备为鼠标). 
+2. 注意输入设备部分有些bug, 欢迎大家讨论修复.
+3. 目前只测试过16bit模式.
+4. 关于更多的lvgl的配置导出到menuconfig欢迎在issues里面提出. 
+5. 接下来会重点触摸部分和移植原作者的demo到menuconfig中, 欢迎您的pr.  
