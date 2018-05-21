@@ -4,40 +4,15 @@
 #include <rtthread.h> 
 #include <rtdevice.h>  
 
-extern const lv_img_t wallpaper1; 
-extern const lv_img_t wallpaper2; 
+#include "lv_test_theme.h"
 
 static void lvgl_demo_run(void *p)
 {
-    uint8_t windex = 1; 
-    uint16_t cnt = 0; 
-    
-    lv_obj_t *img = lv_img_create(lv_scr_act(), NULL); 
-    lv_img_set_src(img, &wallpaper1);
-    
-    lv_obj_t *label =  lv_label_create(lv_scr_act(), NULL);
-    lv_obj_align(label, img, LV_ALIGN_IN_TOP_RIGHT, 50, 272/2-16); 
-    lv_label_set_recolor(label, true);
-    lv_label_set_text(label, "Hello I am liuguang!\n#ff0000 LittlevGl2RTT#"); 
+    lv_theme_t *th = lv_theme_material_init(210, LV_FONT_DEFAULT);
+    lv_test_theme(th); 
 
     while(1)
     {
-        cnt++; 
-        if(cnt == 100*5)
-        {
-            cnt = 0; 
-            windex = 1-windex; 
-            
-            if(windex == 1)
-            {
-                lv_img_set_src(img, &wallpaper1);
-            }
-            else
-            {
-                lv_img_set_src(img, &wallpaper2);
-            }
-        }
-        
         rt_thread_delay(RT_TICK_PER_SECOND/100);
         lv_task_handler(); 
     }
@@ -56,7 +31,7 @@ int rt_lvgl_demo_init(void)
     }
 
     /* littleGL demo gui thread */ 
-    thread = rt_thread_create("lv_demo", lvgl_demo_run, RT_NULL, 2048, 5, 10); 
+    thread = rt_thread_create("lv_demo", lvgl_demo_run, RT_NULL, 10*1024, 5, 10); 
     if(thread == RT_NULL)
     {
         return RT_ERROR;

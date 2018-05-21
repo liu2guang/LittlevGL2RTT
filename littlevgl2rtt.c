@@ -242,25 +242,18 @@ static void lcd_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_c
     lv_flush_ready();
 }
 
+static rt_bool_t touch_down = RT_FALSE;
+static rt_int16_t last_x = 0;
+static rt_int16_t last_y = 0;
+
 static bool input_read(lv_indev_data_t *data) 
 {
-    lv_indev_data_t input_date = {0}; 
-    
-    if(rt_mq_recv(input_mq, &input_date, sizeof(lv_indev_data_t), 1) == RT_EOK)
-    {
-        rt_memcpy(data, &input_date, sizeof(lv_indev_data_t)); 
-        data->state   = LV_INDEV_STATE_PR;
-        
-        //rt_kprintf("input recv x: %.4d, y: %.4d\n", data->point.x, data->point.y); 
-    }
-    else
-    {
-        data->state   = LV_INDEV_STATE_REL;
-        data->point.x = 0; 
-        data->point.y = 0; 
-    }
-    
-    return false; /* No buffering so no more data read */
+    /*Store the collected data*/
+    data->point.x = last_x;
+    data->point.y = last_y;
+    data->state = (touch_down == RT_TRUE) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
+
+    return false;
 }
 
 static void lvgl_tick_run(void *p)
@@ -272,14 +265,26 @@ static void lvgl_tick_run(void *p)
     }
 } 
 
-rt_err_t littlevgl2rtt_post_input_data(rt_int16_t x, rt_int16_t y) 
+#define TOUCH_EVENT_UP      (0x01)
+#define TOUCH_EVENT_DOWN    (0x02)
+#define TOUCH_EVENT_MOVE    (0x03)
+#define TOUCH_EVENT_NONE    (0x80)
+
+void littlevgl2rtt_post_input_data(rt_int16_t x, rt_int16_t y, rt_uint8_t state) 
 {
-    lv_indev_data_t input_data; 
-    
-    input_data.point.x = x; 
-    input_data.point.y = y; 
-    
-    return rt_mq_send(input_mq, (rt_uint32_t)&input_data, sizeof(lv_indev_data_t));
+    switch(state)
+    {
+    case TOUCH_EVENT_UP:
+        touch_down = RT_FALSE;
+        break; 
+    case TOUCH_EVENT_DOWN:
+        touch_down = RT_TRUE;
+        break; 
+    case TOUCH_EVENT_MOVE:
+        last_x = x;
+        last_y = y;
+        break; 
+    }
 }
 
 rt_err_t littlevgl2rtt_init(const char *name) 

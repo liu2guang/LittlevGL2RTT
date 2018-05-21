@@ -18,9 +18,9 @@
 #define LV_MEM_AUTO_DEFRAG  1                           /* Automatically defrag on free */
 #endif
 #else 
-#define LV_MEM_CUSTOM_INCLUDE <rtthread.h>  /*Header for the dynamic memory function*/
-#define LV_MEM_CUSTOM_ALLOC   rt_malloc     /*Wrapper to malloc*/
-#define LV_MEM_CUSTOM_FREE    rt_free       /*Wrapper to free*/
+#define LV_MEM_CUSTOM_INCLUDE <stdlib.h>                /*Header for the dynamic memory function*/
+#define LV_MEM_CUSTOM_ALLOC   malloc                    /*Wrapper to malloc*/
+#define LV_MEM_CUSTOM_FREE    free                      /*Wrapper to free*/
 #endif  /* LV_MEM_CUSTOM */
 
 /*===================
@@ -62,7 +62,7 @@
  *=================*/
 
 /*Input device settings*/
-#define LV_INDEV_READ_PERIOD            10                     /*Input device read period in milliseconds*/
+#define LV_INDEV_READ_PERIOD            50                     /*Input device read period in milliseconds*/
 #define LV_INDEV_POINT_MARKER           0                      /*Mark the pressed points  (required: USE_LV_REAL_DRAW = 1)*/
 #define LV_INDEV_DRAG_LIMIT             10                     /*Drag threshold in pixels */
 #define LV_INDEV_DRAG_THROW             20                     /*Drag throw slow-down in [%]. Greater value means faster slow-down */
@@ -127,10 +127,10 @@
 #define USE_LV_FONT_DEJAVU_30_CYRILLIC     0
 #define USE_LV_FONT_SYMBOL_30              0
 
-#define USE_LV_FONT_DEJAVU_40              0
+#define USE_LV_FONT_DEJAVU_40              4
 #define USE_LV_FONT_DEJAVU_40_LATIN_SUP    0
 #define USE_LV_FONT_DEJAVU_40_CYRILLIC     0
-#define USE_LV_FONT_SYMBOL_40              0
+#define USE_LV_FONT_SYMBOL_40              4
 
 /*===================
  *  LV_OBJ SETTINGS
