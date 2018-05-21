@@ -248,7 +248,6 @@ static rt_int16_t last_y = 0;
 
 static bool input_read(lv_indev_data_t *data) 
 {
-    /*Store the collected data*/
     data->point.x = last_x;
     data->point.y = last_y;
     data->state = (touch_down == RT_TRUE) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
@@ -265,22 +264,19 @@ static void lvgl_tick_run(void *p)
     }
 } 
 
-#define TOUCH_EVENT_UP      (0x01)
-#define TOUCH_EVENT_DOWN    (0x02)
-#define TOUCH_EVENT_MOVE    (0x03)
-#define TOUCH_EVENT_NONE    (0x80)
-
-void littlevgl2rtt_post_input_data(rt_int16_t x, rt_int16_t y, rt_uint8_t state) 
+void littlevgl2rtt_send_input_event(rt_int16_t x, rt_int16_t y, rt_uint8_t state) 
 {
     switch(state)
     {
-    case TOUCH_EVENT_UP:
+    case LITTLEVGL2RTT_INPUT_UP:
         touch_down = RT_FALSE;
         break; 
-    case TOUCH_EVENT_DOWN:
-        touch_down = RT_TRUE;
+    case LITTLEVGL2RTT_INPUT_DOWN:
+        last_x = x;
+        last_y = y; 
+        touch_down = RT_TRUE; 
         break; 
-    case TOUCH_EVENT_MOVE:
+    case LITTLEVGL2RTT_INPUT_MOVE:
         last_x = x;
         last_y = y;
         break; 
