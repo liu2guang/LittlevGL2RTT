@@ -10,7 +10,7 @@
 #define RT_ALIGN_SIZE 4
 #define RT_THREAD_PRIORITY_32
 #define RT_THREAD_PRIORITY_MAX 32
-#define RT_TICK_PER_SECOND 100
+#define RT_TICK_PER_SECOND 1000
 #define RT_DEBUG
 #define RT_USING_OVERFLOW_CHECK
 #define RT_DEBUG_INIT 0
@@ -67,12 +67,35 @@
 
 /* Device virtual file system */
 
+#define RT_USING_DFS
+#define DFS_USING_WORKDIR
+#define DFS_FILESYSTEMS_MAX 2
+#define DFS_FILESYSTEM_TYPES_MAX 2
+#define DFS_FD_MAX 4
+#define RT_USING_DFS_ELMFAT
+
+/* elm-chan's FatFs, Generic FAT Filesystem Module */
+
+#define RT_DFS_ELM_CODE_PAGE 437
+#define RT_DFS_ELM_WORD_ACCESS
+#define RT_DFS_ELM_USE_LFN_3
+#define RT_DFS_ELM_USE_LFN 3
+#define RT_DFS_ELM_MAX_LFN 255
+#define RT_DFS_ELM_DRIVES 2
+#define RT_DFS_ELM_MAX_SECTOR_SIZE 512
+#define RT_DFS_ELM_REENTRANT
+#define RT_USING_DFS_DEVFS
 
 /* Device Drivers */
 
 #define RT_USING_DEVICE_IPC
 #define RT_USING_SERIAL
+#define RT_USING_I2C
+#define RT_USING_I2C_BITOPS
 #define RT_USING_PIN
+#define RT_USING_RTC
+#define RT_USING_SDIO
+#define RT_USING_SPI
 
 /* Using USB */
 
@@ -104,6 +127,19 @@
 
 /* RT-Thread GUI Engine */
 
+#define PKG_USING_LITTLEVGL2RTT
+#define PKG_USING_LITTLEVGL2RTT_LATEST_VERSION
+
+/* LittlevGL2RTT Options */
+
+#define LV_MEM_DYNAMIC
+#define LV_MEM_CUSTOM 1
+#define LV_COLOR_DEPTH_16
+#define LV_COLOR_DEPTH 16
+#define LV_HOR_RES 800
+#define LV_VER_RES 480
+#define LV_DPI 50
+#define LITTLEVGL2RTT_USING_DEMO
 
 /* IoT - internet of things */
 
@@ -141,7 +177,6 @@
 /* Select uart drivers */
 
 #define RT_USING_UART1
-#define RT_USING_UART2
 
 /* Select spi bus and dev drivers */
 
@@ -149,17 +184,15 @@
 #define LPSPI_CLK_SOURCE 0
 #define LPSPI_CLK_SOURCE_DIVIDER 8
 
-/* Select i2c bus drivers */
+/* Select iic bus drivers */
 
-#define LPI2C_CLOCK_SOURCE_DIVIDER 32
-
-/* Select lcd driver */
-
-#define RT_USING_SDRAM
+#define RT_USING_HW_I2C1
+#define HW_I2C1_BADURATE_400kHZ
 
 /* Select lcd driver */
 
 /* Notice: Fire Board para: 800*480 4 4 8 2 40 10 58 45 */
+
 #define RT_USING_LCD
 #define LCD_WIDTH 800
 #define LCD_HEIGHT 480
@@ -170,20 +203,10 @@
 #define LCD_HSW 40
 #define LCD_VSW 10
 #define LCD_BL_PIN 58
-#define LCD_RST_PIN 0
+#define LCD_RST_PIN 45
+#define RT_USING_SDRAM
+#define RT_USING_RTC_HP
 
-/* LittlevGL2RTT */
-#define PKG_USING_LITTLEVGL2RTT
-#define PKG_USING_LITTLEVGL2RTT_LATEST_VERSION
-
-/* LittlevGL2RTT Options */
-#define LV_MEM_DYNAMIC
-#define LV_MEM_CUSTOM 1
-#define LV_COLOR_DEPTH_16
-#define LV_COLOR_DEPTH 16
-#define LV_HOR_RES LCD_WIDTH
-#define LV_VER_RES LCD_HEIGHT
-#define LV_DPI 50
-#define LITTLEVGL2RTT_USING_DEMO
+#define PKG_USING_TOUCH
 
 #endif
