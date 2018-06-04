@@ -40,7 +40,8 @@ LittlevGL2RTT 是在RTThread3.0版本以上做的LittlevGL中间框架层, 目�
 ## 5. 开发进度
 
 1. 开发环境主要是RT1050 fire的板子(lcd为800*480, 输入设备为GT911), 和qemu环境(800*480, 输入设备为鼠标). 
-2. 注意输入设备部分有些bug, 欢迎大家讨论修复.
+2. 输入接口已经完成适配，目前在野火1050板子上测试通过, 效果稳定[update].
 3. 目前只测试过16bit模式.
 4. 关于更多的lvgl的配置导出到menuconfig欢迎在issues里面提出. 
 5. 接下来会重点触摸部分和移植原作者的demo到menuconfig中, 欢迎您的pr.  
+6. 设计在V3s的RTT的BSP中适配lvgl[update]. 
