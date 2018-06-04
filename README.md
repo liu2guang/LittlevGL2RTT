@@ -44,4 +44,4 @@ LittlevGL2RTT 是在RTThread3.0版本以上做的LittlevGL中间框架层, 目�
 3. 目前只测试过16bit模式.
 4. 关于更多的lvgl的配置导出到menuconfig欢迎在issues里面提出. 
 5. 接下来会重点触摸部分和移植原作者的demo到menuconfig中, 欢迎您的pr.  
-6. 设计在V3s的RTT的BSP中适配lvgl[update]. 
+6. 接下来工作重点:在V3s的RTT的BSP中适配lvgl[update]. 
