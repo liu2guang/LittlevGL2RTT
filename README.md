@@ -7,6 +7,8 @@ LittlevGL2RTT 是在RTThread3.0版本以上做的LittlevGL中间框架层, 目�
 
 感谢LittlevGL作者的开源GUI库. 原库请移步到 [https://github.com/littlevgl/lvgl](https://github.com/littlevgl/lvgl "lvgl"). 
 
+接下来工作重点: 在V3s的RTT的BSP中适配lvgl, 移植原作者的demo到menuconfig中, 欢迎您的pr.
+
 ## 1. 效果图
 
 ![效果图](https://i.imgur.com/hdq3RhV.gif)
@@ -43,5 +45,3 @@ LittlevGL2RTT 是在RTThread3.0版本以上做的LittlevGL中间框架层, 目�
 2. 输入接口已经完成适配，目前在野火1050板子上测试通过, 效果稳定[update].
 3. 目前只测试过16bit模式.
 4. 关于更多的lvgl的配置导出到menuconfig欢迎在issues里面提出. 
-5. 接下来会重点触摸部分和移植原作者的demo到menuconfig中, 欢迎您的pr.  
-6. 接下来工作重点:在V3s的RTT的BSP中适配lvgl[update]. 
