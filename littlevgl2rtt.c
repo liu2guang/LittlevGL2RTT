@@ -6,7 +6,7 @@ static struct rt_device_graphic_info info;
 static struct rt_messagequeue *input_mq; 
 
 /* Todo: add gpu */
-static void lcd_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t color)
+static void lcd_fb_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t color)
 {
     /*Return if the area is out the screen*/
     if(x2 < 0) return;
@@ -78,7 +78,7 @@ static void lcd_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t 
     rt_device_control(device, RTGRAPHIC_CTRL_RECT_UPDATE, &rect_info); 
 }
 
-static void lcd_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t * color_p)
+static void lcd_fb_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t * color_p)
 {
     /*Return if the area is out the screen*/
     if(x2 < 0) return;
@@ -159,7 +159,7 @@ static void lcd_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_col
     rt_device_control(device, RTGRAPHIC_CTRL_RECT_UPDATE, &rect_info); 
 }
 
-static void lcd_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t * color_p)
+static void lcd_fb_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t * color_p)
 {
     /*Return if the area is out the screen*/
     if(x2 < 0) return;
@@ -237,8 +237,81 @@ static void lcd_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_c
     rect_info.y = y1;
     rect_info.width = x2 - x1;
     rect_info.height = y2 - y1;
-    rt_device_control(device, RTGRAPHIC_CTRL_RECT_UPDATE, &rect_info); 
-    
+    rt_device_control(device, RTGRAPHIC_CTRL_RECT_UPDATE, &rect_info);
+
+    lv_flush_ready();
+}
+
+static void lcd_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t color)
+{
+    /*Return if the area is out the screen*/
+    if(x2 < 0) return;
+    if(y2 < 0) return;
+    if(x1 > info.width  - 1) return;
+    if(y1 > info.height - 1) return;
+
+    /*Truncate the area to the screen*/
+    int32_t act_x1 = x1 < 0 ? 0 : x1;
+    int32_t act_y1 = y1 < 0 ? 0 : y1;
+    int32_t act_x2 = x2 > info.width  - 1 ? info.width  - 1 : x2;
+    int32_t act_y2 = y2 > info.height - 1 ? info.height - 1 : y2;
+
+    uint32_t x;
+    uint32_t y;
+
+    for(y = act_y1; y <= act_y2; y++)
+    {
+        rt_graphix_ops(device)->draw_hline(&color.full , act_x1, act_x2, y);
+    }
+}
+
+static void lcd_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t * color_p)
+{
+    /*Return if the area is out the screen*/
+    if(x2 < 0) return;
+    if(y2 < 0) return;
+    if(x1 > info.width  - 1) return;
+    if(y1 > info.height - 1) return;
+
+    /*Truncate the area to the screen*/
+    int32_t act_x1 = x1 < 0 ? 0 : x1;
+    int32_t act_y1 = y1 < 0 ? 0 : y1;
+    int32_t act_x2 = x2 > info.width  - 1 ? info.width  - 1 : x2;
+    int32_t act_y2 = y2 > info.height - 1 ? info.height - 1 : y2;
+
+    uint32_t x;
+    uint32_t y;
+
+    for(y = act_y1; y <= act_y2; y++)
+    {
+        rt_graphix_ops(device)->blit_line(&color_p->full , act_x1, y, act_x2 - act_x1 + 1);
+        color_p += (x2 - x1 + 1);
+    }
+}
+
+static void lcd_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t * color_p)
+{
+    /*Return if the area is out the screen*/
+    if(x2 < 0) return;
+    if(y2 < 0) return;
+    if(x1 > info.width  - 1) return;
+    if(y1 > info.height - 1) return;
+
+    /*Truncate the area to the screen*/
+    int32_t act_x1 = x1 < 0 ? 0 : x1;
+    int32_t act_y1 = y1 < 0 ? 0 : y1;
+    int32_t act_x2 = x2 > info.width  - 1 ? info.width  - 1 : x2;
+    int32_t act_y2 = y2 > info.height - 1 ? info.height - 1 : y2;
+
+    uint32_t x;
+    uint32_t y;
+
+    for(y = act_y1; y <= act_y2; y++)
+    {
+        rt_graphix_ops(device)->blit_line(color_p, act_x1, y, act_x2 - act_x1 + 1);
+        color_p += (x2 - x1 + 1);
+    }
+
     lv_flush_ready();
 }
 
@@ -289,8 +362,11 @@ rt_err_t littlevgl2rtt_init(const char *name)
     
     /* LCD Device Init */
     device = rt_device_find(name); 
-    rt_device_open(device, RT_DEVICE_OFLAG_RDWR); 
-    rt_device_control(device, RTGRAPHIC_CTRL_GET_INFO, &info); 
+    RT_ASSERT(device != RT_NULL);
+    if(rt_device_open(device, RT_DEVICE_OFLAG_RDWR) == RT_EOK)
+    {
+        rt_device_control(device, RTGRAPHIC_CTRL_GET_INFO, &info);
+    }
     
     RT_ASSERT(info.bits_per_pixel ==  8 || info.bits_per_pixel == 16 || 
               info.bits_per_pixel == 24 || info.bits_per_pixel == 32); 
@@ -309,9 +385,19 @@ rt_err_t littlevgl2rtt_init(const char *name)
     lv_disp_drv_t disp_drv; 
     lv_disp_drv_init(&disp_drv); 
     
-    disp_drv.disp_fill  = lcd_fill;
-    disp_drv.disp_map   = lcd_map;
-    disp_drv.disp_flush = lcd_flush;
+    if(info.framebuffer == RT_NULL)
+    {
+        /* If the display device is a non-framebuffer device,hook the display driver interface according to the specific lcd ic. */
+        disp_drv.disp_fill  = lcd_fill;
+        disp_drv.disp_map   = lcd_map;
+        disp_drv.disp_flush = lcd_flush;
+    }
+    else
+    {
+        disp_drv.disp_fill  = lcd_fb_fill;
+        disp_drv.disp_map   = lcd_fb_map;
+        disp_drv.disp_flush = lcd_fb_flush;
+    }
 
     lv_disp_drv_register(&disp_drv); 
     

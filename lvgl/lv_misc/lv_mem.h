@@ -16,6 +16,7 @@ extern "C" {
  *********************/
 #include <stdint.h>
 #include <stddef.h>
+#include <rtthread.h>
 
 /*********************
  *      DEFINES
@@ -91,10 +92,8 @@ uint32_t lv_mem_get_size(const void * data);
  * Halt o NULL pointer
  * p pointer to a memory
  */
-static inline  void lv_mem_assert(void *p)
-{
-    if(p == NULL) {while(1);}
-}
+#define lv_mem_assert(p) RT_ASSERT(p != RT_NULL)
+
 
 
 /**********************
