@@ -25,7 +25,7 @@ before_script:
   - cp -r /home/travis/build/liu2guang/LittlevGL2RTT /home/travis/build/liu2guang/RT-Thread/bsp/imxrt1052-evk/packages/LittlevGL2RTT
   
   # 导出RT-Thread运行bsp根目录和编译器
-  - export RTT_ROOT=`/home/travis/build/liu2guang/RT-Thread/bsp/imxrt1052-evk` 
+  - export RTT_ROOT=`/home/travis/build/liu2guang/RT-Thread` 
   - "[ x$RTT_CC == x ] && export RTT_CC='gcc' || true" 
 
 # 运行scons构建编译项目
