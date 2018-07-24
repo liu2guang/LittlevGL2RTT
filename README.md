@@ -8,7 +8,6 @@ LittlevGL2RTT 是在RTThread3.0版本以上做的LittlevGL中间框架层, 目�
 感谢LittlevGL作者的开源GUI库. 原库请移步到 [https://github.com/littlevgl/lvgl](https://github.com/littlevgl/lvgl "lvgl"). 
 
 ----
-欢迎各位大佬加入QQ群沟通交流littlevgl2rtt相关开发和移植!!!
 ![littlevgl2rtt交流群群二维码](https://i.imgur.com/COnvJ4A.png)
 ----
 
