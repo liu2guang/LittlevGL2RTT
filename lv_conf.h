@@ -11,6 +11,7 @@
 /*----------------
  * Dynamic memory
  *----------------*/
+
 #if     LV_MEM_CUSTOM == 0
 #define LV_MEM_SIZE         (LV_MEM_KB_SIZE * 1024U)    /* Size memory used by `lv_mem_alloc` in bytes (>= 2kB) */
 #define LV_MEM_ATTR                                     /* Complier prefix for big array declaration */
@@ -42,7 +43,8 @@
  * Required for buffered drawing, opacity and anti-aliasing
  * VDB makes the double buffering, you don't need to deal with it!
  * Typical size: ~1/10 screen */
-#define LV_VDB_SIZE         (20 * LV_HOR_RES)  /*Size of VDB in pixel count (1/10 screen size is good for first)*/
+#define LV_VDB_SIZE         (30 * LV_HOR_RES)  /*Size of VDB in pixel count (1/10 screen size is good for first)*/
+#define LV_VDB_PX_BPP       LV_COLOR_SIZE      /*Bit-per-pixel of VDB. Useful for monochrome or non-standard color format displays. (Special formats are handled with `disp_drv->vdb_wr`)*/
 #define LV_VDB_ADR          0                  /*Place VDB to a specific address (e.g. in external RAM) (0: allocate automatically into RAM)*/
 
 /* Use two Virtual Display buffers (VDB) parallelize rendering and flushing (optional)
@@ -91,6 +93,32 @@
 /*Compiler attributes*/
 #define LV_ATTRIBUTE_TICK_INC                 /* Define a custom attribute to tick increment function */
 #define LV_ATTRIBUTE_TASK_HANDLER
+#define LV_COMPILER_VLA_SUPPORTED            1  /* 1: Variable length array is supported*/
+#define LV_COMPILER_NON_CONST_INIT_SUPPORTED 1  /* 1: Initialization with non constant values are supported */
+
+/*HAL settings*/
+#define LV_TICK_CUSTOM     0                        /*1: use a custom tick source (removing the need to manually update the tick with `lv_tick_inc`) */
+#if LV_TICK_CUSTOM == 1
+#define LV_TICK_CUSTOM_INCLUDE  "Arduino.h"         /*Header for the sys time function*/
+#define LV_TICK_CUSTOM_SYS_TIME_EXPR (millis())     /*Expression evaluating to current systime in ms*/
+#endif     /*LV_TICK_CUSTOM*/
+
+/*Log settings*/
+#ifndef USE_LV_LOG
+#define USE_LV_LOG      0   /*Enable/disable the log module*/
+#endif
+#if USE_LV_LOG
+/* How important log should be added:
+ * LV_LOG_LEVEL_TRACE       A lot of logs to give detailed information
+ * LV_LOG_LEVEL_INFO        Log important events
+ * LV_LOG_LEVEL_WARN        Log if something unwanted happened but didn't caused problem
+ * LV_LOG_LEVEL_ERROR       Only critical issue, when the system may fail
+ */
+#define LV_LOG_LEVEL    LV_LOG_LEVEL_INFO
+/* 1: Print the log with 'printf'; 0: user need to register a callback*/
+
+#define LV_LOG_PRINTF   0
+#endif  /*USE_LV_LOG*/
 
 /*================
  *  THEME USAGE
@@ -110,8 +138,6 @@
 /* More info about fonts: https://littlevgl.com/basics#fonts
  * To enable a built-in font use 1,2,4 or 8 values
  * which will determine the bit-per-pixel */
-#define LV_FONT_DEFAULT        &lv_font_dejavu_20     /*Always set a default font from the built-in fonts*/
-
 #define USE_LV_FONT_DEJAVU_10              0
 #define USE_LV_FONT_DEJAVU_10_LATIN_SUP    0
 #define USE_LV_FONT_DEJAVU_10_CYRILLIC     0
@@ -131,6 +157,18 @@
 #define USE_LV_FONT_DEJAVU_40_LATIN_SUP    0
 #define USE_LV_FONT_DEJAVU_40_CYRILLIC     0
 #define USE_LV_FONT_SYMBOL_40              4
+
+#define USE_LV_FONT_MONOSPACE_8            0
+
+/* Optionally declare your custom fonts here.
+ * You can use these fonts as default font too
+ * and they will be available globally. E.g.
+ * #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(my_font_1) \
+ *                                LV_FONT_DECLARE(my_font_2) \
+ */
+#define LV_FONT_CUSTOM_DECLARE
+
+#define LV_FONT_DEFAULT        &lv_font_dejavu_20     /*Always set a default font from the built-in fonts*/
 
 /*===================
  *  LV_OBJ SETTINGS
@@ -157,9 +195,16 @@
 
 /*Image (dependencies: lv_label*/
 #define USE_LV_IMG      1
+#if USE_LV_IMG != 0
+#define LV_IMG_CF_INDEXED   1       /*Enable indexed (palette) images*/
+#define LV_IMG_CF_ALPHA     1       /*Enable alpha indexed images*/
+#endif
 
 /*Line (dependencies: -*/
 #define USE_LV_LINE     1
+
+/*Arc (dependencies: -)*/
+#define USE_LV_ARC      1
 
 /*******************
  * Container objects
@@ -209,12 +254,28 @@
 #define LV_TA_PWD_SHOW_TIME     1500    /*ms*/
 #endif
 
+/*Calendar (dependencies: -)*/
+#define USE_LV_CALENDAR 1
+
+/*Preload (dependencies: arc)*/
+#define USE_LV_PRELOAD      1
+#if USE_LV_PRELOAD != 0
+#define LV_PRELOAD_DEF_ARC_LENGTH   60      /*[deg]*/
+#define LV_PRELOAD_DEF_SPIN_TIME    1000    /*[ms]*/
+#endif
+
 /*************************
  * User input objects
  *************************/
 
 /*Button (dependencies: lv_cont*/
 #define USE_LV_BTN      1
+#if USE_LV_BTN != 0
+#define LV_BTN_INK_EFFECT   1       /*Enable button-state animations - draw a circle on click (dependencies: USE_LV_ANIMATION)*/
+#endif
+
+/*Image Button (dependencies: lv_btn*/
+#define USE_LV_IMGBTN   1
 
 /*Button matrix (dependencies: -)*/
 #define USE_LV_BTNM     1
@@ -248,5 +309,12 @@
 
 /*Switch (dependencies: lv_slider)*/
 #define USE_LV_SW       1
+
+/*************************
+ * Non-user section
+ *************************/
+#ifdef _MSC_VER                               /* Disable warnings for Visual Studio*/
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 
 #endif /*LV_CONF_H*/
