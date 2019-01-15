@@ -371,7 +371,7 @@ rt_err_t littlevgl2rtt_init(const char *name)
     RT_ASSERT(info.bits_per_pixel ==  8 || info.bits_per_pixel == 16 || 
               info.bits_per_pixel == 24 || info.bits_per_pixel == 32); 
 
-    if(info.bits_per_pixel != LV_COLOR_DEPTH)
+    if((info.bits_per_pixel != LV_COLOR_DEPTH) && (info.bits_per_pixel != 32 && LV_COLOR_DEPTH != 24))
     {
         rt_kprintf("Error: framebuffer color depth mismatch! (Should be %d to match with LV_COLOR_DEPTH)", 
             info.bits_per_pixel); 
