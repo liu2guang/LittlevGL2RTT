@@ -20,8 +20,8 @@
 #endif
 #else 
 #define LV_MEM_CUSTOM_INCLUDE <stdlib.h>                /*Header for the dynamic memory function*/
-#define LV_MEM_CUSTOM_ALLOC   malloc                    /*Wrapper to malloc*/
-#define LV_MEM_CUSTOM_FREE    free                      /*Wrapper to free*/
+#define LV_MEM_CUSTOM_ALLOC   rt_malloc                    /*Wrapper to malloc*/
+#define LV_MEM_CUSTOM_FREE    rt_free                      /*Wrapper to free*/
 #endif  /* LV_MEM_CUSTOM */
 
 /*===================
