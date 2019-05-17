@@ -356,6 +356,21 @@ void littlevgl2rtt_send_input_event(rt_int16_t x, rt_int16_t y, rt_uint8_t state
     }
 }
 
+#ifndef USE_LV_LOG
+void littlevgl2rtt_log_register(lv_log_level_t level, const char * file, uint32_t line, const char * dsc)
+{
+    if(level >= LV_LOG_LEVEL) {
+      //Show the log level if you want
+      if(level == LV_LOG_LEVEL_TRACE)  {
+         rt_kprintf("Trace:");
+      }
+
+      rt_kprintf("%s\n", dsc);
+      //You can write 'file' and 'line' too similary if required.
+    }
+}
+#endif
+
 rt_err_t littlevgl2rtt_init(const char *name) 
 {
     RT_ASSERT(name != RT_NULL); 
@@ -380,7 +395,12 @@ rt_err_t littlevgl2rtt_init(const char *name)
 
     /* littlevgl Init */ 
     lv_init(); 
-    
+
+#ifndef USE_LV_LOG
+    /* littlevgl Log Init */ 
+    lv_log_register_print(littlevgl2rtt_log_register);
+#endif
+
     /* littlevGL Display device interface */
     lv_disp_drv_t disp_drv; 
     lv_disp_drv_init(&disp_drv); 
@@ -414,7 +434,7 @@ rt_err_t littlevgl2rtt_init(const char *name)
     
     /* littlevGL Tick thread */ 
     rt_thread_t thread = RT_NULL; 
-    
+
     thread = rt_thread_create("lv_tick", lvgl_tick_run, RT_NULL, 512, 6, 10); 
     if(thread == RT_NULL)
     {
