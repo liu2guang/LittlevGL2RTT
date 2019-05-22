@@ -3,7 +3,7 @@
  * 
  */
 
-#if 1 /*Remove this to enable the content (Delete the last #endif too!)*/
+#if 0 /*Remove this to enable the content (Delete the last #endif too!)*/
 
 #ifndef LV_CONF_H
 #define LV_CONF_H
