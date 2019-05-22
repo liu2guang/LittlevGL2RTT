@@ -356,7 +356,7 @@ void littlevgl2rtt_send_input_event(rt_int16_t x, rt_int16_t y, rt_uint8_t state
     }
 }
 
-#ifndef USE_LV_LOG
+#if USE_LV_LOG
 void littlevgl2rtt_log_register(lv_log_level_t level, const char * file, uint32_t line, const char * dsc)
 {
     if(level >= LV_LOG_LEVEL) {
@@ -396,7 +396,7 @@ rt_err_t littlevgl2rtt_init(const char *name)
     /* littlevgl Init */ 
     lv_init(); 
 
-#ifndef USE_LV_LOG
+#if USE_LV_LOG
     /* littlevgl Log Init */ 
     lv_log_register_print(littlevgl2rtt_log_register);
 #endif
