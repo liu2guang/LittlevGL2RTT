@@ -13,30 +13,25 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
-#ifdef LV_CONF_INCLUDE_SIMPLE
-#include "lv_conf.h"
-#else
-#include "../../lv_conf.h"
-#endif
+#include "../lv_conf_internal.h"
 
-#if USE_LV_WIN != 0
+#if LV_USE_WIN != 0
 
 /*Testing of dependencies*/
-#if USE_LV_BTN == 0
-#error "lv_win: lv_btn is required. Enable it in lv_conf.h (USE_LV_BTN  1) "
+#if LV_USE_BTN == 0
+#error "lv_win: lv_btn is required. Enable it in lv_conf.h (LV_USE_BTN  1) "
 #endif
 
-#if USE_LV_LABEL == 0
-#error "lv_win: lv_label is required. Enable it in lv_conf.h (USE_LV_LABEL  1) "
+#if LV_USE_LABEL == 0
+#error "lv_win: lv_label is required. Enable it in lv_conf.h (LV_USE_LABEL  1) "
 #endif
 
-#if USE_LV_IMG == 0
-#error "lv_win: lv_img is required. Enable it in lv_conf.h (USE_LV_IMG  1) "
+#if LV_USE_IMG == 0
+#error "lv_win: lv_img is required. Enable it in lv_conf.h (LV_USE_IMG  1) "
 #endif
 
-
-#if USE_LV_PAGE == 0
-#error "lv_win: lv_page is required. Enable it in lv_conf.h (USE_LV_PAGE  1) "
+#if LV_USE_PAGE == 0
+#error "lv_win: lv_page is required. Enable it in lv_conf.h (LV_USE_PAGE  1) "
 #endif
 
 #include "../lv_core/lv_obj.h"
@@ -55,29 +50,24 @@ extern "C" {
  **********************/
 
 /*Data of window*/
-typedef struct
-{
+typedef struct {
     /*Ext. of ancestor*/
     /*New data for this type */
-    lv_obj_t * page;                /*Pointer to a page which holds the content*/
-    lv_obj_t * header;              /*Pointer to the header container of the window*/
-    lv_obj_t * title;               /*Pointer to the title label of the window*/
-    lv_style_t * style_header;      /*Style of the header container*/
-    lv_style_t * style_btn_rel;    /*Control button releases style*/
-    lv_style_t * style_btn_pr;     /*Control button pressed style*/
-    lv_coord_t btn_size;               /*Size of the control buttons (square)*/
+    lv_obj_t * page;                  /*Pointer to a page which holds the content*/
+    lv_obj_t * header;                /*Pointer to the header container of the window*/
+    char * title_txt;                 /*Pointer to the title label of the window*/
+    lv_coord_t btn_w;                 /*Width of the control buttons*/
 } lv_win_ext_t;
 
+/** Window parts. */
 enum {
-    LV_WIN_STYLE_BG,
-    LV_WIN_STYLE_CONTENT_BG,
-    LV_WIN_STYLE_CONTENT_SCRL,
-    LV_WIN_STYLE_SB,
-    LV_WIN_STYLE_HEADER,
-    LV_WIN_STYLE_BTN_REL,
-    LV_WIN_STYLE_BTN_PR,
+    LV_WIN_PART_BG = LV_OBJ_PART_MAIN, /**< Window object background style. */
+    _LV_WIN_PART_VIRTUAL_LAST,
+    LV_WIN_PART_HEADER = _LV_OBJ_PART_REAL_LAST, /**< Window titlebar background style. */
+    LV_WIN_PART_CONTENT_SCROLLABLE, /**< Window content style. */
+    LV_WIN_PART_SCROLLBAR, /**< Window scrollbar style. */
+    _LV_WIN_PART_REAL_LAST
 };
-typedef uint8_t lv_win_style_t;
 
 /**********************
  * GLOBAL PROTOTYPES
@@ -93,33 +83,40 @@ lv_obj_t * lv_win_create(lv_obj_t * par, const lv_obj_t * copy);
 
 /**
  * Delete all children of the scrl object, without deleting scrl child.
- * @param obj pointer to an object
+ * @param win pointer to an object
  */
-void lv_win_clean(lv_obj_t *obj);
+void lv_win_clean(lv_obj_t * win);
 
 /*======================
  * Add/remove functions
  *=====================*/
 
 /**
- * Add control button to the header of the window
+ * Add control button on the right side of the window header
  * @param win pointer to a window object
  * @param img_src an image source ('lv_img_t' variable, path to file or a symbol)
- * @param rel_action a function pointer to call when the button is released
  * @return pointer to the created button object
  */
-lv_obj_t * lv_win_add_btn(lv_obj_t * win, const void * img_src, lv_action_t rel_action);
+lv_obj_t * lv_win_add_btn_right(lv_obj_t * win, const void * img_src);
+
+/**
+ * Add control button on the left side of the window header
+ * @param win pointer to a window object
+ * @param img_src an image source ('lv_img_t' variable, path to file or a symbol)
+ * @return pointer to the created button object
+ */
+lv_obj_t * lv_win_add_btn_left(lv_obj_t * win, const void * img_src);
 
 /*=====================
  * Setter functions
  *====================*/
 
 /**
- * A release action which can be assigned to a window control button to close it
- * @param btn pointer to the released button
- * @return always LV_ACTION_RES_INV because the button is deleted with the window
+ * Can be assigned to a window control button to close the window
+ * @param btn pointer to the control button on the widows header
+ * @param evet the event type
  */
-lv_res_t lv_win_close_action(lv_obj_t * btn);
+void lv_win_close_event_cb(lv_obj_t * btn, lv_event_t event);
 
 /**
  * Set the title of a window
@@ -133,30 +130,50 @@ void lv_win_set_title(lv_obj_t * win, const char * title);
  * @param win pointer to a window object
  * @return control button size
  */
-void lv_win_set_btn_size(lv_obj_t * win, lv_coord_t size);
+void lv_win_set_header_height(lv_obj_t * win, lv_coord_t size);
+
+/**
+ * Set the width of the control buttons on the header
+ * @param win pointer to a window object
+ * @param width width of the control button. 0: to make them square automatically.
+ */
+void lv_win_set_btn_width(lv_obj_t * win, lv_coord_t width);
+
+/**
+ * Set the size of the content area.
+ * @param win pointer to a window object
+ * @param w width
+ * @param h height (the window will be higher with the height of the header)
+ */
+void lv_win_set_content_size(lv_obj_t * win, lv_coord_t w, lv_coord_t h);
 
 /**
  * Set the layout of the window
  * @param win pointer to a window object
  * @param layout the layout from 'lv_layout_t'
  */
-void lv_win_set_layout(lv_obj_t *win, lv_layout_t layout);
+void lv_win_set_layout(lv_obj_t * win, lv_layout_t layout);
 
 /**
  * Set the scroll bar mode of a window
  * @param win pointer to a window object
- * @param sb_mode the new scroll bar mode from  'lv_sb_mode_t'
+ * @param sb_mode the new scroll bar mode from  'lv_scrollbar_mode_t'
  */
-void lv_win_set_sb_mode(lv_obj_t *win, lv_sb_mode_t sb_mode);
+void lv_win_set_scrollbar_mode(lv_obj_t * win, lv_scrollbar_mode_t sb_mode);
 
 /**
- * Set a style of a window
+ * Set focus animation duration on `lv_win_focus()`
  * @param win pointer to a window object
- * @param type which style should be set
- * @param style pointer to a style
+ * @param anim_time duration of animation [ms]
  */
-void lv_win_set_style(lv_obj_t *win, lv_win_style_t type, lv_style_t *style);
+void lv_win_set_anim_time(lv_obj_t * win, uint16_t anim_time);
 
+/**
+ * Set drag status of a window. If set to 'true' window can be dragged like on a PC.
+ * @param win pointer to a window object
+ * @param en whether dragging is enabled
+ */
+void lv_win_set_drag(lv_obj_t * win, bool en);
 
 /*=====================
  * Getter functions
@@ -170,18 +187,26 @@ void lv_win_set_style(lv_obj_t *win, lv_win_style_t type, lv_style_t *style);
 const char * lv_win_get_title(const lv_obj_t * win);
 
 /**
-* Get the content holder object of window (`lv_page`) to allow additional customization
-* @param win pointer to a window object
-* @return the Page object where the window's content is
-*/
+ * Get the content holder object of window (`lv_page`) to allow additional customization
+ * @param win pointer to a window object
+ * @return the Page object where the window's content is
+ */
 lv_obj_t * lv_win_get_content(const lv_obj_t * win);
 
 /**
- * Get the control button size of a window
+ * Get the header height
  * @param win pointer to a window object
- * @return control button size
+ * @return header height
  */
-lv_coord_t lv_win_get_btn_size(const lv_obj_t * win);
+lv_coord_t lv_win_get_header_height(const lv_obj_t * win);
+
+
+/**
+ * Get the width of the control buttons on the header
+ * @param win pointer to a window object
+ * @return width of the control button. 0: square.
+ */
+lv_coord_t lv_win_get_btn_width(lv_obj_t * win);
 
 /**
  * Get the pointer of a widow from one of  its control button.
@@ -196,14 +221,21 @@ lv_obj_t * lv_win_get_from_btn(const lv_obj_t * ctrl_btn);
  * @param win pointer to a window object
  * @return the layout of the window (from 'lv_layout_t')
  */
-lv_layout_t lv_win_get_layout(lv_obj_t *win);
+lv_layout_t lv_win_get_layout(lv_obj_t * win);
 
 /**
  * Get the scroll bar mode of a window
  * @param win pointer to a window object
  * @return the scroll bar mode of the window (from 'lv_sb_mode_t')
  */
-lv_sb_mode_t lv_win_get_sb_mode(lv_obj_t *win);
+lv_scrollbar_mode_t lv_win_get_sb_mode(lv_obj_t * win);
+
+/**
+ * Get focus animation duration
+ * @param win pointer to a window object
+ * @return duration of animation [ms]
+ */
+uint16_t lv_win_get_anim_time(const lv_obj_t * win);
 
 /**
  * Get width of the content area (page scrollable) of the window
@@ -213,12 +245,14 @@ lv_sb_mode_t lv_win_get_sb_mode(lv_obj_t *win);
 lv_coord_t lv_win_get_width(lv_obj_t * win);
 
 /**
- * Get a style of a window
- * @param win pointer to a button object
- * @param type which style window be get
- * @return style pointer to a style
+ * Get drag status of a window. If set to 'true' window can be dragged like on a PC.
+ * @param win pointer to a window object
+ * @return whether window is draggable
  */
-lv_style_t * lv_win_get_style(const lv_obj_t *win, lv_win_style_t type);
+static inline bool lv_win_get_drag(const lv_obj_t * win)
+{
+    return lv_obj_get_drag(win);
+}
 
 /*=====================
  * Other functions
@@ -228,9 +262,9 @@ lv_style_t * lv_win_get_style(const lv_obj_t *win, lv_win_style_t type);
  * Focus on an object. It ensures that the object will be visible in the window.
  * @param win pointer to a window object
  * @param obj pointer to an object to focus (must be in the window)
- * @param anim_time scroll animation time in milliseconds (0: no animation)
+ * @param anim_en LV_ANIM_ON focus with an animation; LV_ANIM_OFF focus without animation
  */
-void lv_win_focus(lv_obj_t * win, lv_obj_t * obj, uint16_t anim_time);
+void lv_win_focus(lv_obj_t * win, lv_obj_t * obj, lv_anim_enable_t anim_en);
 
 /**
  * Scroll the window horizontally
@@ -257,7 +291,7 @@ static inline void lv_win_scroll_ver(lv_obj_t * win, lv_coord_t dist)
  *      MACROS
  **********************/
 
-#endif /*USE_LV_WIN*/
+#endif /*LV_USE_WIN*/
 
 #ifdef __cplusplus
 } /* extern "C" */

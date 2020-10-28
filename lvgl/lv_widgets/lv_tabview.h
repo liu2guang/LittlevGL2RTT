@@ -13,26 +13,22 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
-#ifdef LV_CONF_INCLUDE_SIMPLE
-#include "lv_conf.h"
-#else
-#include "../../lv_conf.h"
-#endif
+#include "../lv_conf_internal.h"
 
-#if USE_LV_TABVIEW != 0
+#if LV_USE_TABVIEW != 0
 
 /*Testing of dependencies*/
-#if USE_LV_BTNM == 0
-#error "lv_tabview: lv_btnm is required. Enable it in lv_conf.h (USE_LV_BTNM  1) "
+#if LV_USE_BTNMATRIX == 0
+#error "lv_tabview: lv_btnm is required. Enable it in lv_conf.h (LV_USE_BTNMATRIX  1) "
 #endif
 
-#if USE_LV_PAGE == 0
-#error "lv_tabview: lv_page is required. Enable it in lv_conf.h (USE_LV_PAGE  1) "
+#if LV_USE_PAGE == 0
+#error "lv_tabview: lv_page is required. Enable it in lv_conf.h (LV_USE_PAGE  1) "
 #endif
 
 #include "../lv_core/lv_obj.h"
-#include "../lv_objx/lv_win.h"
-#include "../lv_objx/lv_page.h"
+#include "../lv_widgets/lv_win.h"
+#include "../lv_widgets/lv_page.h"
 
 /*********************
  *      DEFINES
@@ -42,52 +38,48 @@ extern "C" {
  *      TYPEDEFS
  **********************/
 
-/* parametes: pointer to a tabview object, tab_id
- * return: LV_RES_INV: to prevent the loading of the tab;  LV_RES_OK: if everything is fine*/
-typedef lv_res_t (*lv_tabview_action_t)(lv_obj_t *, uint16_t);
-
-
+/** Position of tabview buttons. */
 enum {
-    LV_TABVIEW_BTNS_POS_TOP,
-    LV_TABVIEW_BTNS_POS_BOTTOM,
+    LV_TABVIEW_TAB_POS_NONE,
+    LV_TABVIEW_TAB_POS_TOP,
+    LV_TABVIEW_TAB_POS_BOTTOM,
+    LV_TABVIEW_TAB_POS_LEFT,
+    LV_TABVIEW_TAB_POS_RIGHT
 };
 typedef uint8_t lv_tabview_btns_pos_t;
 
 /*Data of tab*/
-typedef struct
-{
+typedef struct {
     /*Ext. of ancestor*/
     /*New data for this type */
     lv_obj_t * btns;
     lv_obj_t * indic;
-    lv_obj_t * content;   /*A rectangle to show the current tab*/
+    lv_obj_t * content; /*A background page which holds tab's pages*/
     const char ** tab_name_ptr;
     lv_point_t point_last;
     uint16_t tab_cur;
     uint16_t tab_cnt;
+#if LV_USE_ANIMATION
     uint16_t anim_time;
-    uint8_t slide_enable :1;    /*1: enable horizontal sliding by touch pad*/
-    uint8_t draging :1;
-    uint8_t drag_hor :1;
-    lv_tabview_btns_pos_t btns_pos :1;
-    lv_tabview_action_t tab_load_action;
+#endif
+    lv_tabview_btns_pos_t btns_pos : 3;
 } lv_tabview_ext_t;
 
 enum {
-    LV_TABVIEW_STYLE_BG,
-    LV_TABVIEW_STYLE_INDIC,
-    LV_TABVIEW_STYLE_BTN_BG,
-    LV_TABVIEW_STYLE_BTN_REL,
-    LV_TABVIEW_STYLE_BTN_PR,
-    LV_TABVIEW_STYLE_BTN_TGL_REL,
-    LV_TABVIEW_STYLE_BTN_TGL_PR,
+    LV_TABVIEW_PART_BG = LV_OBJ_PART_MAIN,
+    _LV_TABVIEW_PART_VIRTUAL_LAST = _LV_OBJ_PART_VIRTUAL_LAST,
+
+    LV_TABVIEW_PART_BG_SCRLLABLE = _LV_OBJ_PART_REAL_LAST,
+    LV_TABVIEW_PART_TAB_BG,
+    LV_TABVIEW_PART_TAB_BTN,
+    LV_TABVIEW_PART_INDIC,
+    _LV_TABVIEW_PART_REAL_LAST,
 };
-typedef uint8_t lv_tabview_style_t;
+typedef uint8_t lv_tabview_part_t;
 
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
-
 
 /**
  * Create a Tab view object
@@ -96,12 +88,6 @@ typedef uint8_t lv_tabview_style_t;
  * @return pointer to the created tab
  */
 lv_obj_t * lv_tabview_create(lv_obj_t * par, const lv_obj_t * copy);
-
-/**
- * Delete all children of the scrl object, without deleting scrl child.
- * @param obj pointer to an object
- */
-void lv_tabview_clean(lv_obj_t *obj);
 
 /*======================
  * Add/remove functions
@@ -115,6 +101,12 @@ void lv_tabview_clean(lv_obj_t *obj);
  */
 lv_obj_t * lv_tabview_add_tab(lv_obj_t * tabview, const char * name);
 
+/**
+ * Delete all children of a tab created by `lv_tabview_add_tab`.
+ * @param tab pointer to a tab
+ */
+void lv_tabview_clean_tab(lv_obj_t * tab);
+
 /*=====================
  * Setter functions
  *====================*/
@@ -123,24 +115,17 @@ lv_obj_t * lv_tabview_add_tab(lv_obj_t * tabview, const char * name);
  * Set a new tab
  * @param tabview pointer to Tab view object
  * @param id index of a tab to load
- * @param anim_en true: set with sliding animation; false: set immediately
+ * @param anim LV_ANIM_ON: set the value with an animation; LV_ANIM_OFF: change the value immediately
  */
-void lv_tabview_set_tab_act(lv_obj_t * tabview, uint16_t id, bool anim_en);
+void lv_tabview_set_tab_act(lv_obj_t * tabview, uint16_t id, lv_anim_enable_t anim);
 
 /**
- * Set an action to call when a tab is loaded (Good to create content only if required)
- * lv_tabview_get_act() still gives the current (old) tab (to remove content from here)
- * @param tabview pointer to a tabview object
- * @param action pointer to a function to call when a tab is loaded
- */
-void lv_tabview_set_tab_load_action(lv_obj_t *tabview, lv_tabview_action_t action);
-
-/**
- * Enable horizontal sliding with touch pad
+ * Set the name of a tab.
  * @param tabview pointer to Tab view object
- * @param en true: enable sliding; false: disable sliding
+ * @param id index of the tab the name should be set
+ * @param name new tab name
  */
-void lv_tabview_set_sliding(lv_obj_t * tabview, bool en);
+void lv_tabview_set_tab_name(lv_obj_t * tabview, uint16_t id, char * name);
 
 /**
  * Set the animation time of tab view when a new tab is loaded
@@ -150,19 +135,11 @@ void lv_tabview_set_sliding(lv_obj_t * tabview, bool en);
 void lv_tabview_set_anim_time(lv_obj_t * tabview, uint16_t anim_time);
 
 /**
- * Set the style of a tab view
- * @param tabview pointer to a tan view object
- * @param type which style should be set
- * @param style pointer to the new style
- */
-void lv_tabview_set_style(lv_obj_t *tabview, lv_tabview_style_t type, lv_style_t *style);
-
-/**
  * Set the position of tab select buttons
- * @param tabview pointer to a tan view object
+ * @param tabview pointer to a tab view object
  * @param btns_pos which button position
  */
-void lv_tabview_set_btns_pos(lv_obj_t *tabview, lv_tabview_btns_pos_t btns_pos);
+void lv_tabview_set_btns_pos(lv_obj_t * tabview, lv_tabview_btns_pos_t btns_pos);
 
 /*=====================
  * Getter functions
@@ -190,20 +167,6 @@ uint16_t lv_tabview_get_tab_count(const lv_obj_t * tabview);
 lv_obj_t * lv_tabview_get_tab(const lv_obj_t * tabview, uint16_t id);
 
 /**
- * Get the tab load action
- * @param tabview pointer to a tabview object
- * @param return the current tab load action
- */
-lv_tabview_action_t lv_tabview_get_tab_load_action(const lv_obj_t *tabview);
-
-/**
- * Get horizontal sliding is enabled or not
- * @param tabview pointer to Tab view object
- * @return true: enable sliding; false: disable sliding
- */
-bool lv_tabview_get_sliding(const lv_obj_t * tabview);
-
-/**
  * Get the animation time of tab view when a new tab is loaded
  * @param tabview pointer to Tab view object
  * @return time of animation in milliseconds
@@ -211,28 +174,19 @@ bool lv_tabview_get_sliding(const lv_obj_t * tabview);
 uint16_t lv_tabview_get_anim_time(const lv_obj_t * tabview);
 
 /**
- * Get a style of a tab view
- * @param tabview pointer to a ab view object
- * @param type which style should be get
- * @return style pointer to a style
- */
-lv_style_t * lv_tabview_get_style(const lv_obj_t *tabview, lv_tabview_style_t type);
-
-/**
  * Get position of tab select buttons
  * @param tabview pointer to a ab view object
  */
-lv_tabview_btns_pos_t lv_tabview_get_btns_pos(const lv_obj_t *tabview);
-
+lv_tabview_btns_pos_t lv_tabview_get_btns_pos(const lv_obj_t * tabview);
 
 /**********************
  *      MACROS
  **********************/
 
-#endif  /*USE_LV_TABVIEW*/
+#endif /*LV_USE_TABVIEW*/
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
-#endif  /*LV_TABVIEW_H*/
+#endif /*LV_TABVIEW_H*/

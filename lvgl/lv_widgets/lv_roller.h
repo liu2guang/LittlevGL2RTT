@@ -13,21 +13,18 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
-#ifdef LV_CONF_INCLUDE_SIMPLE
-#include "lv_conf.h"
-#else
-#include "../../lv_conf.h"
-#endif
+#include "../lv_conf_internal.h"
 
-#if USE_LV_ROLLER != 0
+#if LV_USE_ROLLER != 0
 
 /*Testing of dependencies*/
-#if USE_LV_DDLIST == 0
-#error "lv_roller: lv_ddlist is required. Enable it in lv_conf.h (USE_LV_DDLIST  1) "
+#if LV_USE_PAGE == 0
+#error "lv_roller: lv_page is required. Enable it in lv_conf.h (LV_USE_PAGE 1) "
 #endif
 
 #include "../lv_core/lv_obj.h"
-#include "lv_ddlist.h"
+#include "lv_page.h"
+#include "lv_label.h"
 
 /*********************
  *      DEFINES
@@ -36,17 +33,36 @@ extern "C" {
 /**********************
  *      TYPEDEFS
  **********************/
+
+/** Roller mode. */
+enum {
+    LV_ROLLER_MODE_NORMAL, /**< Normal mode (roller ends at the end of the options). */
+    LV_ROLLER_MODE_INIFINITE, /**< Infinite mode (roller can be scrolled forever). */
+};
+
+typedef uint8_t lv_roller_mode_t;
+
+
+
 /*Data of roller*/
 typedef struct {
-    lv_ddlist_ext_t ddlist; /*Ext. of ancestor*/
+    lv_page_ext_t page; /*Ext. of ancestor*/
+
     /*New data for this type */
+    lv_style_list_t style_sel; /*Style of the selected option*/
+    uint16_t option_cnt;          /*Number of options*/
+    uint16_t sel_opt_id;          /*Index of the current option*/
+    uint16_t sel_opt_id_ori;      /*Store the original index on focus*/
+    lv_roller_mode_t mode : 1;
+    uint8_t auto_fit : 1;         /*1: Automatically set the width*/
 } lv_roller_ext_t;
 
 enum {
-    LV_ROLLER_STYLE_BG,
-    LV_ROLLER_STYLE_SEL,
+    LV_ROLLER_PART_BG = LV_PAGE_PART_BG,
+    LV_ROLLER_PART_SELECTED = _LV_PAGE_PART_VIRTUAL_LAST,
+    _LV_ROLLER_PART_VIRTUAL_LAST,
 };
-typedef uint8_t lv_roller_style_t;
+typedef uint8_t lv_roller_part_t;
 
 /**********************
  * GLOBAL PROTOTYPES
@@ -68,110 +84,94 @@ lv_obj_t * lv_roller_create(lv_obj_t * par, const lv_obj_t * copy);
  * Set the options on a roller
  * @param roller pointer to roller object
  * @param options a string with '\n' separated options. E.g. "One\nTwo\nThree"
+ * @param mode `LV_ROLLER_MODE_NORMAL` or `LV_ROLLER_MODE_INFINITE`
  */
-static inline void lv_roller_set_options(lv_obj_t * roller, const char * options)
-{
-    lv_ddlist_set_options(roller, options);
-}
+void lv_roller_set_options(lv_obj_t * roller, const char * options, lv_roller_mode_t mode);
+
+/**
+ * Set the align of the roller's options (left, right or center[default])
+ * @param roller - pointer to a roller object
+ * @param align - one of lv_label_align_t values (left, right, center)
+ */
+void lv_roller_set_align(lv_obj_t * roller, lv_label_align_t align);
 
 /**
  * Set the selected option
  * @param roller pointer to a roller object
  * @param sel_opt id of the selected option (0 ... number of option - 1);
- * @param anim_en true: set with animation; false set immediately
+ * @param anim LV_ANOM_ON: set with animation; LV_ANIM_OFF set immediately
  */
-void lv_roller_set_selected(lv_obj_t *roller, uint16_t sel_opt, bool anim_en);
-
-
-/**
- * Set a function to call when a new option is chosen
- * @param roller pointer to a roller
- * @param action pointer to a callback function
- */
-static inline void lv_roller_set_action(lv_obj_t * roller, lv_action_t action)
-{
-    lv_ddlist_set_action(roller, action);
-}
+void lv_roller_set_selected(lv_obj_t * roller, uint16_t sel_opt, lv_anim_enable_t anim);
 
 /**
  * Set the height to show the given number of rows (options)
  * @param roller pointer to a roller object
  * @param row_cnt number of desired visible rows
  */
-void lv_roller_set_visible_row_count(lv_obj_t *roller, uint8_t row_cnt);
+void lv_roller_set_visible_row_count(lv_obj_t * roller, uint8_t row_cnt);
 
 /**
- * Enable or disable the horizontal fit to the content
- * @param roller pointer to a roller
- * @param fit en true: enable auto fit; false: disable auto fit
+ * Allow automatically setting the width of roller according to it's content.
+ * @param roller pointer to a roller object
+ * @param auto_fit true: enable auto fit
  */
-static inline void lv_roller_set_hor_fit(lv_obj_t * roller, bool fit_en)
-{
-    lv_ddlist_set_hor_fit(roller, fit_en);
-}
+void lv_roller_set_auto_fit(lv_obj_t * roller, bool auto_fit);
 
 /**
  * Set the open/close animation time.
  * @param roller pointer to a roller object
  * @param anim_time: open/close animation time [ms]
  */
-static inline void lv_roller_set_anim_time(lv_obj_t *roller, uint16_t anim_time)
+static inline void lv_roller_set_anim_time(lv_obj_t * roller, uint16_t anim_time)
 {
-    lv_ddlist_set_anim_time(roller, anim_time);
+    lv_page_set_anim_time(roller, anim_time);
 }
-
-
-/**
- * Set a style of a roller
- * @param roller pointer to a roller object
- * @param type which style should be set
- * @param style pointer to a style
- */
-void lv_roller_set_style(lv_obj_t *roller, lv_roller_style_t type, lv_style_t *style);
 
 /*=====================
  * Getter functions
  *====================*/
+/**
+ * Get the id of the selected option
+ * @param roller pointer to a roller object
+ * @return id of the selected option (0 ... number of option - 1);
+ */
+uint16_t lv_roller_get_selected(const lv_obj_t * roller);
+
+/**
+ * Get the total number of options
+ * @param roller pointer to a roller object
+ * @return the total number of options in the list
+ */
+uint16_t lv_roller_get_option_cnt(const lv_obj_t * roller);
+
+/**
+ * Get the current selected option as a string
+ * @param roller pointer to roller object
+ * @param buf pointer to an array to store the string
+ * @param buf_size size of `buf` in bytes. 0: to ignore it.
+ */
+void lv_roller_get_selected_str(const lv_obj_t * roller, char * buf, uint32_t buf_size);
+
+/**
+ * Get the align attribute. Default alignment after _create is LV_LABEL_ALIGN_CENTER
+ * @param roller pointer to a roller object
+ * @return LV_LABEL_ALIGN_LEFT, LV_LABEL_ALIGN_RIGHT or LV_LABEL_ALIGN_CENTER
+ */
+lv_label_align_t lv_roller_get_align(const lv_obj_t * roller);
+
+/**
+ * Get whether the auto fit option is enabled or not.
+ * @param roller pointer to a roller object
+ * @return true: auto fit is enabled
+ */
+bool lv_roller_get_auto_fit(lv_obj_t * roller);
 
 /**
  * Get the options of a roller
  * @param roller pointer to roller object
  * @return the options separated by '\n'-s (E.g. "Option1\nOption2\nOption3")
  */
-static inline const char * lv_roller_get_options(const lv_obj_t *roller)
-{
-    return lv_ddlist_get_options(roller);
-}
-
-/**
- * Get the id of the selected option
- * @param roller pointer to a roller object
- * @return id of the selected option (0 ... number of option - 1);
- */
-static inline uint16_t lv_roller_get_selected(const lv_obj_t *roller)
-{
-    return lv_ddlist_get_selected(roller);
-}
-
-/**
- * Get the current selected option as a string
- * @param roller pointer to roller object
- * @param buf pointer to an array to store the string
- */
-static inline void lv_roller_get_selected_str(const lv_obj_t * roller, char * buf)
-{
-    lv_ddlist_get_selected_str(roller, buf);
-}
-
-/**
- * Get the "option selected" callback function
- * @param roller pointer to a roller
- * @return  pointer to the call back function
- */
-static inline lv_action_t lv_roller_get_action(const lv_obj_t * roller)
-{
-    return lv_ddlist_get_action(roller);
-}
+const char * lv_roller_get_options(const lv_obj_t * roller);
 
 /**
  * Get the open/close animation time.
@@ -180,32 +180,18 @@ static inline lv_action_t lv_roller_get_action(const lv_obj_t * roller)
  */
 static inline uint16_t lv_roller_get_anim_time(const lv_obj_t * roller)
 {
-    return lv_ddlist_get_anim_time(roller);
+    return lv_page_get_anim_time(roller);
 }
 
-/**
- * Get the auto width set attribute
- * @param roller pointer to a roller object
- * @return true: auto size enabled; false: manual width settings enabled
- */
-bool lv_roller_get_hor_fit(const lv_obj_t *roller);
-
-/**
- * Get a style of a roller
- * @param roller pointer to a roller object
- * @param type which style should be get
- * @return style pointer to a style
- *  */
-lv_style_t * lv_roller_get_style(const lv_obj_t *roller, lv_roller_style_t type);
 
 /**********************
  *      MACROS
  **********************/
 
-#endif  /*USE_LV_ROLLER*/
+#endif /*LV_USE_ROLLER*/
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
-#endif  /*LV_ROLLER_H*/
+#endif /*LV_ROLLER_H*/

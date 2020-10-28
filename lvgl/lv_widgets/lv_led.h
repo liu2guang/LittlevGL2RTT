@@ -13,13 +13,9 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
-#ifdef LV_CONF_INCLUDE_SIMPLE
-#include "lv_conf.h"
-#else
-#include "../../lv_conf.h"
-#endif
+#include "../lv_conf_internal.h"
 
-#if USE_LV_LED != 0
+#if LV_USE_LED != 0
 
 #include "../lv_core/lv_obj.h"
 
@@ -32,12 +28,17 @@ extern "C" {
  **********************/
 
 /*Data of led*/
-typedef struct
-{
+typedef struct {
     /*No inherited ext.*/
     /*New data for this type */
-    uint8_t bright;         /*Current brightness of the LED (0..255)*/
+    uint8_t bright; /*Current brightness of the LED (0..255)*/
 } lv_led_ext_t;
+
+/*Parts of LED*/
+enum {
+    LV_LED_PART_MAIN = LV_OBJ_PART_MAIN,
+};
+typedef uint8_t lv_led_part_t;
 
 /**********************
  * GLOBAL PROTOTYPES
@@ -54,7 +55,7 @@ lv_obj_t * lv_led_create(lv_obj_t * par, const lv_obj_t * copy);
 /**
  * Set the brightness of a LED object
  * @param led pointer to a LED object
- * @param bright 0 (max. dark) ... 255 (max. light)
+ * @param bright LV_LED_BRIGHT_MIN (max. dark) ... LV_LED_BRIGHT_MAX (max. light)
  */
 void lv_led_set_bright(lv_obj_t * led, uint8_t bright);
 
@@ -77,40 +78,20 @@ void lv_led_off(lv_obj_t * led);
 void lv_led_toggle(lv_obj_t * led);
 
 /**
- * Set the style of a led
- * @param led pointer to a led object
- * @param style pointer to a style
- */
-static inline void lv_led_set_style(lv_obj_t *led, lv_style_t *style)
-{
-    lv_obj_set_style(led, style);
-}
-
-/**
  * Get the brightness of a LEd object
  * @param led pointer to LED object
  * @return bright 0 (max. dark) ... 255 (max. light)
  */
 uint8_t lv_led_get_bright(const lv_obj_t * led);
 
-/**
- * Get the style of an led object
- * @param led pointer to an led object
- * @return pointer to the led's style
- */
-static inline lv_style_t* lv_led_get_style(const lv_obj_t *led)
-{
-    return lv_obj_get_style(led);
-}
-
 /**********************
  *      MACROS
  **********************/
 
-#endif  /*USE_LV_LED*/
+#endif /*LV_USE_LED*/
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
-#endif  /*LV_LED_H*/
+#endif /*LV_LED_H*/
