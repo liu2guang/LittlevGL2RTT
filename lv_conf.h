@@ -8,6 +8,8 @@
 
 #include "rtconfig.h"
 
+typedef int lv_coord_t;
+
 /*----------------
  * Dynamic memory
  *----------------*/
