@@ -6,7 +6,7 @@ static struct rt_device_graphic_info info;
 static struct rt_messagequeue *input_mq; 
 
 /* Todo: add gpu */
-static void lcd_fb_flush(struct _disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
+static void lcd_fb_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
     int x1, x2, y1, y2;
 
@@ -14,13 +14,14 @@ static void lcd_fb_flush(struct _disp_drv_t * disp_drv, const lv_area_t * area, 
     x2 = area->x2;
     y1 = area->y1;
     y2 = area->y2;
+rt_kprintf("<%d,%d,%d,%d>\n", x1, x2, y1, y2);
 
     /*Return if the area is out the screen*/
     if(x2 < 0) return;
     if(y2 < 0) return;
     if(x1 > info.width  - 1) return;
     if(y1 > info.height - 1) return;
-
+#if 1
     /*Truncate the area to the screen*/
     int32_t act_x1 = x1 < 0 ? 0 : x1;
     int32_t act_y1 = y1 < 0 ? 0 : y1;
@@ -84,7 +85,7 @@ static void lcd_fb_flush(struct _disp_drv_t * disp_drv, const lv_area_t * area, 
             color_p += x2 - act_x2;
         }
     }
-    
+#endif
     struct rt_device_rect_info rect_info; 
 
     rect_info.x = x1;
@@ -92,6 +93,8 @@ static void lcd_fb_flush(struct _disp_drv_t * disp_drv, const lv_area_t * area, 
     rect_info.width = x2 - x1;
     rect_info.height = y2 - y1;
     rt_device_control(device, RTGRAPHIC_CTRL_RECT_UPDATE, &rect_info);
+
+    lv_disp_flush_ready(disp_drv);
 }
 
 static void lcd_flush(struct _disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
@@ -142,7 +145,7 @@ static void lvgl_tick_run(void *p)
 {
     while(1)
     {
-        lv_tick_inc(1); 
+        lv_tick_inc(1);
         rt_thread_delay(1);
     }
 } 
@@ -212,7 +215,9 @@ rt_err_t littlevgl2rtt_init(const char *name)
 #endif
 
     /* littlevGL Display device interface */
-    static lv_disp_drv_t disp_drv; 
+    static lv_disp_drv_t disp_drv;
+    static lv_disp_buf_t disp_buf;
+    static short fbbuf[320*10];
     lv_disp_drv_init(&disp_drv); 
 
     if(info.framebuffer == RT_NULL)
@@ -222,10 +227,12 @@ rt_err_t littlevgl2rtt_init(const char *name)
     else
     {
         disp_drv.flush_cb = lcd_fb_flush;
+        lv_disp_buf_init(&disp_buf, fbbuf, NULL, 320*10);
+        disp_drv.buffer = &disp_buf;
     }
 
     lv_disp_drv_register(&disp_drv); 
-    
+
     /* littlevGL Input device interface */ 
     input_mq = rt_mq_create("lv_input", sizeof(lv_indev_data_t), 256, RT_IPC_FLAG_FIFO);
     

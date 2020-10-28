@@ -137,40 +137,76 @@ typedef int lv_coord_t;
  *    FONT USAGE
  *===================*/
 
-/* More info about fonts: https://littlevgl.com/basics#fonts
- * To enable a built-in font use 1,2,4 or 8 values
- * which will determine the bit-per-pixel */
-#define USE_LV_FONT_DEJAVU_10              0
-#define USE_LV_FONT_DEJAVU_10_LATIN_SUP    0
-#define USE_LV_FONT_DEJAVU_10_CYRILLIC     0
-#define USE_LV_FONT_SYMBOL_10              0
+/* The built-in fonts contains the ASCII range and some Symbols with  4 bit-per-pixel.
+ * The symbols are available via `LV_SYMBOL_...` defines
+ * More info about fonts: https://docs.lvgl.io/v7/en/html/overview/font.html
+ * To create a new font go to: https://lvgl.com/ttf-font-to-c-array
+ */
 
-#define USE_LV_FONT_DEJAVU_20              4
-#define USE_LV_FONT_DEJAVU_20_LATIN_SUP    0
-#define USE_LV_FONT_DEJAVU_20_CYRILLIC     0
-#define USE_LV_FONT_SYMBOL_20              4
+/* Montserrat fonts with bpp = 4
+ * https://fonts.google.com/specimen/Montserrat  */
+#define LV_FONT_MONTSERRAT_8     0
+#define LV_FONT_MONTSERRAT_10    0
+#define LV_FONT_MONTSERRAT_12    0
+#define LV_FONT_MONTSERRAT_14    1
+#define LV_FONT_MONTSERRAT_16    0
+#define LV_FONT_MONTSERRAT_18    0
+#define LV_FONT_MONTSERRAT_20    0
+#define LV_FONT_MONTSERRAT_22    0
+#define LV_FONT_MONTSERRAT_24    0
+#define LV_FONT_MONTSERRAT_26    0
+#define LV_FONT_MONTSERRAT_28    0
+#define LV_FONT_MONTSERRAT_30    0
+#define LV_FONT_MONTSERRAT_32    0
+#define LV_FONT_MONTSERRAT_34    0
+#define LV_FONT_MONTSERRAT_36    0
+#define LV_FONT_MONTSERRAT_38    0
+#define LV_FONT_MONTSERRAT_40    0
+#define LV_FONT_MONTSERRAT_42    0
+#define LV_FONT_MONTSERRAT_44    0
+#define LV_FONT_MONTSERRAT_46    0
+#define LV_FONT_MONTSERRAT_48    0
 
-#define USE_LV_FONT_DEJAVU_30              0
-#define USE_LV_FONT_DEJAVU_30_LATIN_SUP    0
-#define USE_LV_FONT_DEJAVU_30_CYRILLIC     0
-#define USE_LV_FONT_SYMBOL_30              0
+/* Demonstrate special features */
+#define LV_FONT_MONTSERRAT_12_SUBPX      0
+#define LV_FONT_MONTSERRAT_28_COMPRESSED 0  /*bpp = 3*/
+#define LV_FONT_DEJAVU_16_PERSIAN_HEBREW 0  /*Hebrew, Arabic, PErisan letters and all their forms*/
+#define LV_FONT_SIMSUN_16_CJK            0  /*1000 most common CJK radicals*/
 
-#define USE_LV_FONT_DEJAVU_40              4
-#define USE_LV_FONT_DEJAVU_40_LATIN_SUP    0
-#define USE_LV_FONT_DEJAVU_40_CYRILLIC     0
-#define USE_LV_FONT_SYMBOL_40              4
-
-#define USE_LV_FONT_MONOSPACE_8            0
+/*Pixel perfect monospace font
+ * http://pelulamu.net/unscii/ */
+#define LV_FONT_UNSCII_8     0
 
 /* Optionally declare your custom fonts here.
  * You can use these fonts as default font too
  * and they will be available globally. E.g.
  * #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(my_font_1) \
- *                                LV_FONT_DECLARE(my_font_2) \
+ *                                LV_FONT_DECLARE(my_font_2)
  */
 #define LV_FONT_CUSTOM_DECLARE
 
-#define LV_FONT_DEFAULT        &lv_font_dejavu_20     /*Always set a default font from the built-in fonts*/
+/* Enable it if you have fonts with a lot of characters.
+ * The limit depends on the font size, font face and bpp
+ * but with > 10,000 characters if you see issues probably you need to enable it.*/
+#define LV_FONT_FMT_TXT_LARGE   0
+
+/* Enables/disables support for compressed fonts. If it's disabled, compressed
+ * glyphs cannot be processed by the library and won't be rendered.
+ */
+#define LV_USE_FONT_COMPRESSED 1
+
+/* Enable subpixel rendering */
+#define LV_USE_FONT_SUBPX 1
+#if LV_USE_FONT_SUBPX
+/* Set the pixel order of the display.
+ * Important only if "subpx fonts" are used.
+ * With "normal" font it doesn't matter.
+ */
+#define LV_FONT_SUBPX_BGR    0
+#endif
+
+/*Declare the type of the user data of fonts (can be e.g. `void *`, `int`, `struct`)*/
+typedef void * lv_font_user_data_t;
 
 /*===================
  *  LV_OBJ SETTINGS
@@ -311,6 +347,9 @@ typedef int lv_coord_t;
 
 /*Switch (dependencies: lv_slider)*/
 #define USE_LV_SW       1
+
+/* 1: Enable GPU interface*/
+#define LV_USE_GPU              0
 
 /*************************
  * Non-user section

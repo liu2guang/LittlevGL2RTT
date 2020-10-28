@@ -14,7 +14,7 @@ inc = inc + [cwd + "/lv_core"]
 inc = inc + [cwd + "/lv_draw"]
 inc = inc + [cwd + "/lv_hal"]
 inc = inc + [cwd + "/lv_misc"]
-inc = inc + [cwd + "/lv_fonts"]
+inc = inc + [cwd + "/lv_font"]
 inc = inc + [cwd + "/lv_widgets"]
 inc = inc + [cwd + "/lv_themes"]
 
@@ -23,7 +23,7 @@ src = src + Glob('./lv_core/*.c')
 src = src + Glob('./lv_draw/*.c')
 src = src + Glob('./lv_hal/*.c')
 src = src + Glob('./lv_misc/*.c')
-src = src + Glob('./lv_fonts/*.c')
+src = src + Glob('./lv_font/*.c')
 src = src + Glob('./lv_widgets/*.c')
 src = src + Glob('./lv_themes/*.c')
 

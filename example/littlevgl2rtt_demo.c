@@ -8,8 +8,7 @@
 
 static void lvgl_demo_run(void *p)
 {
-    lv_theme_t *th = lv_theme_material_init(210, LV_FONT_DEFAULT);
-    lv_test_theme(th); 
+    lv_demo_widgets();
 
     while(1)
     {
