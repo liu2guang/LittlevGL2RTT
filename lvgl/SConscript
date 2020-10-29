@@ -27,8 +27,6 @@ src = src + Glob('./lv_font/*.c')
 src = src + Glob('./lv_widgets/*.c')
 src = src + Glob('./lv_themes/*.c')
 
-SrcRemove(src, ['./lv_misc/lv_ufs.c'])
-
 LOCAL_CCFLAGS = ''
 
 if rtconfig.CROSS_TOOL == 'gcc':
