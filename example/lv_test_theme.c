@@ -71,7 +71,7 @@ void lv_demo_widgets(void)
     lv_style_set_value_ofs_y(&style_box, LV_STATE_DEFAULT, - LV_DPX(10));
     lv_style_set_margin_top(&style_box, LV_STATE_DEFAULT, LV_DPX(30));
 
- //   controls_create(t1);
+    controls_create(t1);
  //   visuals_create(t2);
  //   selectors_create(t3);
 
