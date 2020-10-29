@@ -237,6 +237,8 @@ rt_err_t littlevgl2rtt_init(const char *name)
     static lv_disp_buf_t disp_buf;
 
     lv_disp_drv_init(&disp_drv);
+    disp_drv.hor_res = info.width;
+    disp_drv.ver_res = info.height;
 
     if (info.framebuffer == RT_NULL)
     {
