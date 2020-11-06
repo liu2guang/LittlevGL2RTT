@@ -10,17 +10,13 @@ static void lvgl_demo_run(void *p)
 {
     lv_demo_widgets();
 
-    while(1)
-    {
-        rt_thread_delay(RT_TICK_PER_SECOND/100);
-        lv_task_handler(); 
-    }
+
 } 
 
 int rt_lvgl_demo_init(void)
 {
     rt_err_t ret = RT_EOK;
-    rt_thread_t thread = RT_NULL; 
+    rt_thread_t thread = RT_NULL;
 
     /* init littlevGL */ 
     ret = littlevgl2rtt_init("lcd"); 

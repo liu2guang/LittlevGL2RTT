@@ -118,11 +118,18 @@ typedef int16_t lv_coord_t;
 
 /* Garbage Collector settings
  * Used if lvgl is binded to higher level language and the memory is managed by that language */
+#ifndef LV_ENABLE_GC
 #define LV_ENABLE_GC 0
-#if LV_ENABLE_GC != 0
-#  define LV_GC_INCLUDE "gc.h"                           /*Include Garbage Collector related things*/
-#  define LV_MEM_CUSTOM_REALLOC   your_realloc           /*Wrapper to realloc*/
-#  define LV_MEM_CUSTOM_GET_SIZE  your_mem_get_size      /*Wrapper to lv_mem_get_size*/
+#endif
+#if LV_ENABLE_GC != 0 //for micropython
+#  define LV_GC_INCLUDE "py/mpstate.h"
+#  define LV_MEM_CUSTOM_REALLOC   m_realloc      /*Wrapper to realloc*/
+#  define LV_MEM_CUSTOM_GET_SIZE  gc_nbytes      /*Wrapper to lv_mem_get_size*/
+
+#  undef LV_MEM_CUSTOM_ALLOC
+#  define LV_MEM_CUSTOM_ALLOC m_malloc
+#  undef LV_MEM_CUSTOM_FREE
+#  define LV_MEM_CUSTOM_FREE    m_free
 #endif /* LV_ENABLE_GC */
 
 /*=======================
@@ -301,7 +308,7 @@ typedef void * lv_img_decoder_user_data_t;
  *
  * The default value just prevents a GCC warning.
  */
-#define LV_EXPORT_CONST_INT(int_value) struct _silence_gcc_warning
+#define LV_EXPORT_CONST_INT(int_value) enum {ENUM_##int_value = int_value}
 
 /* Prefix variables that are used in GPU accelerated operations, often these need to be
  * placed in RAM sections that are DMA accessible */

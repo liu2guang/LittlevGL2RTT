@@ -44,6 +44,7 @@ extern "C" {
     f(void * , _lv_theme_mono_styles)                              \
     f(void * , _lv_theme_empty_styles)                             \
     f(uint8_t *, _lv_font_decompr_buf)                             \
+    f(void *, _lv_user_data)                                       \
 
 
 #define LV_DEFINE_ROOT(root_type, root_name) root_type root_name;
@@ -54,10 +55,11 @@ extern "C" {
 #error "GC requires CUSTOM_MEM"
 #endif /* LV_MEM_CUSTOM */
 #else  /* LV_ENABLE_GC */
+
+#endif /* LV_ENABLE_GC */
 #define LV_GC_ROOT(x) x
 #define LV_EXTERN_ROOT(root_type, root_name) extern root_type root_name;
 LV_ITERATE_ROOTS(LV_EXTERN_ROOT)
-#endif /* LV_ENABLE_GC */
 
 /**********************
  *      TYPEDEFS

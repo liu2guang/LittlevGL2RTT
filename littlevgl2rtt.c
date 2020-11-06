@@ -4,6 +4,20 @@
 static rt_device_t device;
 static struct rt_device_graphic_info info;
 static struct rt_messagequeue *input_mq;
+static int _lv_init = 0;
+static lv_disp_drv_t disp_drv;
+static lv_disp_buf_t disp_buf;
+
+static void color_to16_maybe(lv_color16_t *dst, lv_color_t *src)
+{
+#if (LV_COLOR_DEPTH == 16)
+    dst->full = src->full;
+#else
+    dst->ch.blue = src->ch.blue;
+    dst->ch.green = src->ch.green;
+    dst->ch.red = src->ch.red;
+#endif
+}
 
 /* Todo: add gpu */
 static void lcd_fb_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p)
@@ -39,7 +53,7 @@ static void lcd_fb_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_colo
     if (info.bits_per_pixel == 8)
     {
         uint8_t *fbp8 = (uint8_t *)info.framebuffer;
-
+        //TODO color convert maybe
         for (y = act_y1; y <= act_y2; y++)
         {
             for (x = act_x1; x <= act_x2; x++)
@@ -56,14 +70,14 @@ static void lcd_fb_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_colo
     /* 16 bit per pixel */
     else if (info.bits_per_pixel == 16)
     {
-        uint16_t *fbp16 = (uint16_t *)info.framebuffer;
+        lv_color16_t *fbp16 = (lv_color16_t *)info.framebuffer;
 
         for (y = act_y1; y <= act_y2; y++)
         {
             for (x = act_x1; x <= act_x2; x++)
             {
                 location = (x) + (y)*info.width;
-                fbp16[location] = color_p->full;
+                color_to16_maybe(&fbp16[location], color_p);
                 color_p++;
             }
 
@@ -75,7 +89,7 @@ static void lcd_fb_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_colo
     else if (info.bits_per_pixel == 24 || info.bits_per_pixel == 32)
     {
         uint32_t *fbp32 = (uint32_t *)info.framebuffer;
-
+        //TODO
         for (y = act_y1; y <= act_y2; y++)
         {
             for (x = act_x1; x <= act_x2; x++)
@@ -128,6 +142,7 @@ static void lcd_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t
     uint32_t x;
     uint32_t y;
 
+    //TODO color convert
     for (y = act_y1; y <= act_y2; y++)
     {
         rt_graphix_ops(device)->blit_line((const char *)color_p, act_x1, y, act_x2 - act_x1 + 1);
@@ -150,11 +165,57 @@ static bool input_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
 
 static void lvgl_tick_run(void *p)
 {
-    while (1)
+    while (_lv_init)
     {
         lv_tick_inc(1);
         rt_thread_delay(1);
     }
+}
+
+static int lvgl_tick_handler_init(void)
+{
+    rt_thread_t thread = RT_NULL;
+    int ret;
+
+    thread = rt_thread_create("lv_tick", lvgl_tick_run, RT_NULL, 512, 6, 10);
+    if (thread == RT_NULL)
+    {
+        return RT_ERROR;
+    }
+    ret = rt_thread_startup(thread);
+
+    return ret;
+}
+
+static void lvgl_task_run(void *p)
+{
+    void *buf1 = disp_buf.buf1;
+
+    while (_lv_init)
+    {
+        rt_thread_mdelay(10);
+        lv_task_handler();
+    }
+#if (LV_ENABLE_GC == 1)
+    lv_deinit();
+#endif
+    rt_free(buf1);
+}
+
+static int lvgl_task_handler_init(void)
+{
+    rt_err_t ret = RT_EOK;
+    rt_thread_t thread = RT_NULL;
+
+    /* littleGL demo gui thread */
+    thread = rt_thread_create("lv-task", lvgl_task_run, RT_NULL, 10 * 1024, 5, 10);
+    if (thread == RT_NULL)
+    {
+        return RT_ERROR;
+    }
+    ret = rt_thread_startup(thread);
+
+    return ret;
 }
 
 void littlevgl2rtt_send_input_event(rt_int16_t x, rt_int16_t y, rt_uint8_t state)
@@ -198,6 +259,8 @@ rt_err_t littlevgl2rtt_init(const char *name)
     lv_color_t *fbuf;
 
     RT_ASSERT(name != RT_NULL);
+    if (_lv_init == 1)
+        return 0;
 
     /* LCD Device Init */
     device = rt_device_find(name);
@@ -209,14 +272,14 @@ rt_err_t littlevgl2rtt_init(const char *name)
 
     RT_ASSERT(info.bits_per_pixel == 8 || info.bits_per_pixel == 16 ||
               info.bits_per_pixel == 24 || info.bits_per_pixel == 32);
-
+#if 0
     if ((info.bits_per_pixel != LV_COLOR_DEPTH) && (info.bits_per_pixel != 32 && LV_COLOR_DEPTH != 24))
     {
         rt_kprintf("Error: framebuffer color depth mismatch! (Should be %d to match with LV_COLOR_DEPTH)",
                    info.bits_per_pixel);
         return RT_ERROR;
     }
-
+#endif
     fbuf = rt_malloc(info.width * 10 * sizeof(*fbuf));
     if (!fbuf)
     {
@@ -233,9 +296,6 @@ rt_err_t littlevgl2rtt_init(const char *name)
 #endif
 
     /* littlevGL Display device interface */
-    static lv_disp_drv_t disp_drv;
-    static lv_disp_buf_t disp_buf;
-
     lv_disp_drv_init(&disp_drv);
     disp_drv.hor_res = info.width;
     disp_drv.ver_res = info.height;
@@ -253,9 +313,6 @@ rt_err_t littlevgl2rtt_init(const char *name)
     disp_drv.buffer = &disp_buf;
     lv_disp_drv_register(&disp_drv);
 
-    /* littlevGL Input device interface */
-    input_mq = rt_mq_create("lv_input", sizeof(lv_indev_data_t), 24, RT_IPC_FLAG_FIFO);
-
     static lv_indev_drv_t indev_drv;
     lv_indev_drv_init(&indev_drv);
 
@@ -263,20 +320,20 @@ rt_err_t littlevgl2rtt_init(const char *name)
     indev_drv.read_cb = input_read;
 
     lv_indev_drv_register(&indev_drv);
+    _lv_init = 1;
 
     /* littlevGL Tick thread */
-    rt_thread_t thread = RT_NULL;
-
-    thread = rt_thread_create("lv_tick", lvgl_tick_run, RT_NULL, 512, 6, 10);
-    if (thread == RT_NULL)
-    {
-        return RT_ERROR;
-    }
-    rt_thread_startup(thread);
+    lvgl_tick_handler_init();
+    lvgl_task_handler_init();
 
     /* Info Print */
     rt_kprintf("[littlevgl2rtt] Welcome to the littlevgl2rtt.\n");
     rt_kprintf("[littlevgl2rtt] You can find latest ver from https://github.com/liu2guang/LittlevGL2RTT.\n");
 
     return RT_EOK;
+}
+
+void littlevgl2rtt_deinit(void)
+{
+    _lv_init = 0;
 }
