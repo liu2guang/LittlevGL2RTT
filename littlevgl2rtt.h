@@ -14,5 +14,6 @@ enum littlevgl2rtt_input_state
 
 rt_err_t littlevgl2rtt_init(const char *name); 
 void littlevgl2rtt_send_input_event(rt_int16_t x, rt_int16_t y, rt_uint8_t state); 
+void littlevgl2rtt_deinit(void);
 
 #endif
