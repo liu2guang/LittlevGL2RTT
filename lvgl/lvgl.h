@@ -27,6 +27,7 @@ extern "C" {
 #include "lv_misc/lv_task.h"
 #include "lv_misc/lv_math.h"
 #include "lv_misc/lv_async.h"
+#include "lv_misc/lv_gc.h"
 
 #include "lv_hal/lv_hal.h"
 
