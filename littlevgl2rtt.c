@@ -148,6 +148,8 @@ static void lcd_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t
         rt_graphix_ops(device)->blit_line((const char *)color_p, act_x1, y, act_x2 - act_x1 + 1);
         color_p += (x2 - x1 + 1);
     }
+    
+    lv_disp_flush_ready(disp_drv);
 }
 
 static rt_bool_t touch_down = RT_FALSE;
