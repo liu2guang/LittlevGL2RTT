@@ -167,24 +167,23 @@ static bool input_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
 
 static void lvgl_tick_run(void *p)
 {
-    while (_lv_init)
+    if (_lv_init)
     {
         lv_tick_inc(1);
-        rt_thread_delay(1);
     }
 }
 
 static int lvgl_tick_handler_init(void)
 {
-    rt_thread_t thread = RT_NULL;
+    rt_timer_t timer = RT_NULL;
     int ret;
 
-    thread = rt_thread_create("lv_tick", lvgl_tick_run, RT_NULL, 512, 6, 10);
-    if (thread == RT_NULL)
+    timer = rt_timer_create("lv_tick", lvgl_tick_run, RT_NULL, 1,RT_TIMER_FLAG_PERIODIC);
+    if (timer == RT_NULL)
     {
         return RT_ERROR;
     }
-    ret = rt_thread_startup(thread);
+    ret = rt_timer_start(timer);
 
     return ret;
 }
