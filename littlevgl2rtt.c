@@ -8,6 +8,13 @@ static int _lv_init = 0;
 static lv_disp_drv_t disp_drv;
 static lv_disp_buf_t disp_buf;
 
+typedef struct
+{
+    uint8_t blue;
+    uint8_t green;
+    uint8_t red;
+} lv_color24_t;
+
 static void color_to16_maybe(lv_color16_t *dst, lv_color_t *src)
 {
 #if (LV_COLOR_DEPTH == 16)
@@ -17,6 +24,13 @@ static void color_to16_maybe(lv_color16_t *dst, lv_color_t *src)
     dst->ch.green = src->ch.green;
     dst->ch.red = src->ch.red;
 #endif
+}
+
+static void color_to24(lv_color24_t *dst, lv_color_t *src)
+{
+    dst->blue = src->ch.blue;
+    dst->green = src->ch.green;
+    dst->red = src->ch.red;
 }
 
 /* Todo: add gpu */
@@ -85,8 +99,26 @@ static void lcd_fb_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_colo
         }
     }
 
-    /* 24 or 32 bit per pixel */
-    else if (info.bits_per_pixel == 24 || info.bits_per_pixel == 32)
+    /* 24 bit per pixel */
+    else if (info.bits_per_pixel == 24)
+    {
+        lv_color24_t *fbp24 = (lv_color24_t *)info.framebuffer;
+
+        for (y = act_y1; y <= act_y2; y++)
+        {
+            for (x = act_x1; x <= act_x2; x++)
+            {
+                location = (x) + (y)*info.width;
+                color_to24(&fbp24[location], color_p);
+                color_p++;
+            }
+
+            color_p += x2 - act_x2;
+        }
+    }
+
+    /* 32 bit per pixel */
+    else if (info.bits_per_pixel == 32)
     {
         uint32_t *fbp32 = (uint32_t *)info.framebuffer;
         //TODO
